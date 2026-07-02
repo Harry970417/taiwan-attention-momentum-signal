@@ -1,0 +1,13 @@
+pytrends==4.9.2
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+requests>=2.31
+scipy>=1.11
+statsmodels>=0.14
+streamlit>=1.38
+# NOTE: the FinMind pip package is intentionally NOT used -- it pins
+# lxml<5.0.0, which has no prebuilt wheel for recent Python versions on
+# Windows and fails to build without MSVC Build Tools. All FinMind data is
+# fetched via its public REST API directly with `requests`
+# (see src/stock_data_loader.py).
