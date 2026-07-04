@@ -65,8 +65,8 @@ repo 中,但兩份 README 都沒有連結到它——已在 `README.md` 第 9 �
 - 亂碼:無 U+FFFD 替代字元
 - 斷行:無「條件式」被切斷等異常換行
 - 多餘符號:無孤立 `--` 分隔線、無未閉合的程式碼區塊
-- 個人絕對路徑:僅 `reports/repo_quality_check.md` 內以 code span 形式
-  提及 `C:\Users\user` 作為「先前掃描目標樣式」的說明文字,非真實外洩路徑
+- 個人絕對路徑:`reports/repo_quality_check.md` 開頭原本記錄了一段本機
+  絕對路徑,已於後續修正中改寫為通用描述,現況為 PASS(無殘留)
 - 舊檔案引用:無殘留對 `admissions_three_versions_zh.md` 等已刪除草稿的引用
 
 發現並修正 2 處小格式問題(標題缺空格):

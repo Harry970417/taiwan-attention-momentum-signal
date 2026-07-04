@@ -1,7 +1,15 @@
 # Repo Quality Check (pre-publication audit)
 
-Run 2026-07-03 against `C:\Users\user\Desktop\taiwan-attention-momentum-signal`
-before any `git init` / commit / push.
+> **Historical record.** This audit was run once, locally, before the
+> repo's initial `git init` / commit / push. It has since been
+> supplemented by [`reports/file_integrity_check.md`](file_integrity_check.md),
+> which re-checked the published repo end-to-end and fixed the issues it
+> found (including a broken portfolio PDF). This document is kept as-is
+> for the historical record of the pre-publication state; see the file
+> integrity check for the current status.
+
+Run 2026-07-03 against the local working copy of this repo, before any
+`git init` / commit / push.
 
 ## 1. requirements.txt coverage
 
@@ -50,8 +58,8 @@ links found.**
 
 ## 7. Personal absolute paths
 
-Searched all `.py`, `.md`, `.ipynb`, `.csv`, `.txt` files for
-`C:\Users\user`, `/c/Users/user`, and `C:/Users/user`. **Result: PASS —
+Searched all `.py`, `.md`, `.ipynb`, `.csv`, `.txt` files for local
+Windows/POSIX user-home path patterns. **Result: PASS —
 none found.** All scripts use `Path(__file__).resolve().parent...`-style
 relative paths.
 

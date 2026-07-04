@@ -22,7 +22,7 @@ v0.2 的天真結果(CAAR、IC 顯著)一路修正到 v0.3 的「動能污染」
 
 ## 3. Why Momentum Control Was Necessary
 
-(沿用 v0.3 報告,詳見 `report/TAS_v0.3_Result_Snapshot.md`)動能是最
+(沿用 v0.3 報告,詳見 `reports/TAS_v0.3_Momentum_Control_Report.md`)動能是最
 明顯、最容易想到的混淆變數——搜尋量上升的股票很可能只是因為股價已經在
 漲,才被更多人注意到。
 
@@ -100,7 +100,7 @@ Model E 加入 `attention_z × past_4w_return` 與
 (+4.45%)。這直接反駁「注意力效應是法人買盤的反映」的假設——如果真是
 法人在推動,法人賣超時的高注意力股票不應該還有這麼強的效果。
 
-## 9. Strategy Group Comparison (研究型排序比較,非交易策略)
+## 9. Strategy Group Comparison (研究型排序比較，非交易策略)
 
 以「過去 4 週報酬前 30%」為基礎動能池,疊加不同條件(不計交易成本):
 
