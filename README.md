@@ -120,6 +120,9 @@ single positive result:
   attention. Found institutional flow does **not** explain the effect away.
   [Full report](reports/TAS_v0.4_Final_Research_Interpretation.md)
 
+A consolidated write-up across all three stages is available in the
+[Final Research Report](reports/final_research_report.md).
+
 ## 10. Visual Results
 
 | CAAR (naive attention events) | Residual-factor IC decay |

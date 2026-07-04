@@ -42,7 +42,7 @@ v0.2 的分組分析(過去報酬中位數二分法)已經顯示效應集中在�
 - 風險:`volatility_4w`、`volatility_12w`、`beta_26w`、`max_drawdown_12w`
 - 類別:`industry`(來自 `config/stock_list_50.csv`)
 
-## 5. Regression Evidence(Fama-MacBeth)
+## 5. Regression Evidence (Fama-MacBeth)
 
 Model 1(僅 attention_z)到 Model 5 的週度截面迴歸係數(依變數為未來
 1/2/4 週超額報酬):

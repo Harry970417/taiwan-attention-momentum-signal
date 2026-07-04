@@ -100,7 +100,7 @@ Model E 加入 `attention_z × past_4w_return` 與
 (+4.45%)。這直接反駁「注意力效應是法人買盤的反映」的假設——如果真是
 法人在推動,法人賣超時的高注意力股票不應該還有這麼強的效果。
 
-## 9. Strategy Group Comparison(研究型排序比較,非交易策略)
+## 9. Strategy Group Comparison (研究型排序比較,非交易策略)
 
 以「過去 4 週報酬前 30%」為基礎動能池,疊加不同條件(不計交易成本):
 
