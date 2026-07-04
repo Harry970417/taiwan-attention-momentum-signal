@@ -2,6 +2,9 @@
 
 *(中文版:[README_zh.md](README_zh.md))*
 
+A one-page Chinese portfolio summary PDF is available here:
+[Portfolio PDF Summary](exports/TAS_推甄作品集頁面.pdf)
+
 ## 2. One-line Summary
 
 Google search-volume spikes for Taiwanese large-cap stocks do not behave as
