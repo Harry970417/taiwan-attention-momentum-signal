@@ -71,6 +71,12 @@
 [`docs/limitations.md`](docs/limitations.md);推甄作品集版本見
 [`docs/portfolio_writeup_zh.md`](docs/portfolio_writeup_zh.md)。
 
+## 作品集延伸材料
+
+- [推甄作品集版](docs/portfolio_writeup_zh.md)
+- [自傳可插入段落](docs/autobiography_excerpt_zh.md)
+- [90 秒面試口說版](docs/interview_pitch_zh.md)
+
 ## 免責聲明
 
 本專案為研究與教育性質,不構成投資建議,也不是一個可直接獲利的交易
