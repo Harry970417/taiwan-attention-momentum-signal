@@ -1,4 +1,4 @@
-# 注意力遇上動能:Google Trends 搜尋量、法人籌碼與台股短期續漲效應
+# 量化金融研究專案：注意力遇上動能——Google Trends 搜尋量、法人籌碼與台股短期續漲效應
 
 *(English version: [README.md](README.md))*
 
