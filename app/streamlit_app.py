@@ -17,7 +17,7 @@ PANEL_PATH = ROOT / "data" / "processed" / "attention_weekly_panel_50.csv"
 TABLES_DIR = ROOT / "results" / "tables"
 FIGURES_DIR = ROOT / "results" / "figures"
 
-st.set_page_config(page_title="Taiwan Attention Signal (TAS) v0.2", layout="wide")
+st.set_page_config(page_title="投資人注意力與動能研究 | Taiwan Attention Signal", layout="wide")
 
 
 @st.cache_data
@@ -33,48 +33,97 @@ def load_csv_if_exists(path: Path):
 
 
 def page_research_overview():
-    st.header("研究總覽")
+    # 1. 一句話定位
+    st.header("🔍 搜尋熱度會不會讓「已經在漲」的股票漲更多？")
     st.caption("本頁是給第一次打開這個專案的人看的——不需要先懂統計方法")
 
     st.info(
-        "**30 秒版**：Google 搜尋量異常上升（投資人注意力）不是一個能獨立預測股價的訊號，"
-        "而是「動能放大器」——過去已經上漲的股票，若同時出現搜尋熱度飆升，短期續漲效果更強；"
-        "這個效應不是三大法人籌碼造成的假象。"
+        "**一句話**：Google 搜尋熱度單獨存在時，預測不了股價；"
+        "但當股票原本就在上漲，搜尋熱度飆升會讓短期續漲效果更明顯。"
     )
 
-    st.markdown("#### 3 分鐘版：研究是怎麼一步步修正的")
+    # 2. 一個具體例子
+    st.markdown("#### 一個具體例子")
+    ex1, ex2 = st.columns(2)
+    with ex1:
+        st.markdown(
+            "**股票 A**\n\n"
+            "- 最近 8 週：📈 已上漲\n"
+            "- Google 搜尋量：🔥 突然飆升\n"
+        )
+    with ex2:
+        st.markdown(
+            "**股票 B**\n\n"
+            "- 最近 8 週：📈 同樣已上漲\n"
+            "- Google 搜尋量：➖ 沒有明顯變化\n"
+        )
+    st.caption("（A、B 為根據下方雙重排序方法建構的示意情境，非真實股票代號、非投資建議）")
+
+    # 3. 研究問題
+    st.markdown("#### 研究問題")
+    st.markdown("接下來 1–4 週，股票 A 的報酬表現，是否比股票 B 更強？")
+
+    # 4/5. 資料與比較方法（一行帶過，細節在完整版）
+    st.markdown("#### 用什麼資料、怎麼比較")
+    st.markdown(
+        "50 檔台股大型權值股，2021–2026 年週資料。Google Trends 搜尋量 + FinMind 股價與三大法人買賣超。"
+        "把股票依「過去是否上漲」與「搜尋熱度是否飆升」交叉分組，比較各組後續報酬。"
+    )
+
+    # 6. 三個關鍵發現
+    st.markdown("#### 三個關鍵發現")
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("**v0.2 初步結果**")
-        st.markdown("8 週異常報酬 +14.2%，統計顯著。但拆組後發現效應集中在「過去已上漲」的股票。")
+        st.markdown("**發現一**")
+        st.markdown("像股票 A（上漲＋高關注）後續累積報酬 **+30.8%**；像股票 B（上漲＋低關注）統計上與零無異（p=0.50）。")
     with col2:
-        st.markdown("**v0.3 控制動能**")
-        st.markdown("加入動能控制後係數縮小約 36%，但沒有消失，且效果隨時間拉長而擴大。")
+        st.markdown("**發現二**")
+        st.markdown("控制「過去報酬」後，效果縮小約 36% 但沒消失——不是動能的假象，是動能與注意力的交互作用。")
     with col3:
-        st.markdown("**v0.4 控制法人籌碼**")
-        st.markdown("注意力與三大法人買賣超相關性極低（\\|r\\|≤0.05），排除法人籌碼是替代解釋。")
+        st.markdown("**發現三**")
+        st.markdown("控制三大法人買賣超後，效果幾乎不變（相關性 \\|r\\|≤0.05）——不是法人籌碼造成的假象。")
+
+    # 7. 一張最重要的圖
+    st.markdown("#### 最重要的一張圖：同樣是近期上漲的股票，搜尋關注增加後，後續報酬是否更強？")
+    sort_fig = FIGURES_DIR / "v03_double_sort_heatmap_4w.png"
+    if sort_fig.exists():
+        st.image(str(sort_fig))
+    st.caption(
+        "**圖表在比較什麼**：股票依「過去 4 週報酬」（輸家/中性/贏家）與「搜尋熱度」（低/中/高）交叉分成 9 組，"
+        "數字為各組未來 4 週平均超額報酬。"
+        "**看到什麼**：只有「贏家 × 高關注」這一格明顯突出（+3.28%），其餘格子接近 0 或負值。"
+        "**不能推論什麼**：不能推論成「搜尋量上升會導致股價上漲」的因果關係，"
+        "也不能用來預測特定個股或作為買賣訊號。"
+    )
 
     caar_fig = FIGURES_DIR / "caar_attention_z2.png"
-    sort_fig = FIGURES_DIR / "v03_double_sort_heatmap_4w.png"
-    c1, c2 = st.columns(2)
     if caar_fig.exists():
-        with c1:
-            st.image(str(caar_fig), caption="事件研究：注意力異常事件後的累積異常報酬（CAAR）")
-    if sort_fig.exists():
-        with c2:
-            st.image(str(sort_fig), caption="雙重排序：動能 × 注意力交叉分組報酬")
+        with st.expander("延伸圖表：事件研究 CAAR（注意力異常事件後的累積異常報酬）"):
+            st.image(str(caar_fig))
 
+    # 8. 研究限制
     st.markdown("#### 這個研究不能告訴你什麼")
     st.warning(
         "僅涵蓋 50 檔大型權值股、2021–2026 多為多頭的期間；未模擬交易成本與放空限制；"
         "不是可直接使用的交易訊號或獲利保證。完整限制見 `docs/limitations.md`。"
     )
 
+    # 三個專案的分工
+    with st.expander("這個專案跟另外兩個台股專案有什麼不同？"):
+        st.markdown(
+            "- **taiwan-stock-analyzer**：用來查看與分析台股（個股、技術面、因子）。\n"
+            "- **stock-ai-project**：用來執行每日推薦、追蹤與 LINE 通知。\n"
+            "- **taiwan-attention-momentum-signal（本專案）**：用來研究「投資人搜尋關注是否會改變既有價格趨勢」——"
+            "提出問題、整合資料、建立方法、驗證假說、誠實呈現限制，不是即時交易或股票推薦工具。"
+        )
+
+    # 9. 完整方法入口（公式/迴歸規格/執行指令都在這裡，不放第一屏）
     st.markdown(
         "**完整版**：[README（英文）](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/README.md) · "
         "[README_zh（中文，含完整研究演進）](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/README_zh.md) · "
-        "[方法論](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/docs/methodology.md) · "
-        "[研究限制](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/docs/limitations.md)"
+        "[方法論（Fama-MacBeth／迴歸規格／公式）](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/docs/methodology.md) · "
+        "[研究限制](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/docs/limitations.md) · "
+        "[如何重現（執行指令）](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/docs/REPRODUCIBILITY_GUIDE.md)"
     )
     st.caption("往下探索：左側「資料總覽」看資料收集狀況、「注意力雷達」看本週訊號、「個股查詢」看個股走勢、「研究結果」看完整圖表。")
 
@@ -183,8 +232,8 @@ def page_research_results():
 
 
 def main():
-    st.title("Taiwan Attention Signal (TAS) v0.2")
-    st.caption("研究型 MVP - 結果僅供研究參考,非投資建議")
+    st.title("投資人注意力與動能研究")
+    st.caption("Taiwan Attention Signal · 學術實證研究，結果僅供研究參考，非投資建議")
 
     panel_available = PANEL_PATH.exists()
     page_options = ["研究總覽", "研究結果"]

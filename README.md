@@ -6,9 +6,36 @@ A one-page Chinese portfolio summary PDF is available here:
 [Portfolio PDF Summary](exports/TAS_推甄作品集頁面.pdf)
 
 **New here?** [`docs/PROJECT_EXPLAINED_SIMPLY.md`](docs/PROJECT_EXPLAINED_SIMPLY.md) has a
-30-second / 3-minute / full-depth layered version of this whole page. If you want an
+15-second / 60-second / 3-minute layered version of this whole page. If you want an
 independent check of the methodology (look-ahead bias, alignment, overclaiming) rather than
 just this project's own claims, see [`docs/RESEARCH_METHODOLOGY_AUDIT.md`](docs/RESEARCH_METHODOLOGY_AUDIT.md).
+
+## 15-Second Version
+
+**When a stock that's already rising suddenly gets a spike in Google searches, does it
+keep outperforming a similarly-rising stock that got no search attention? Yes — but only
+for stocks already trending up; search attention alone predicts nothing.**
+
+## 1. The Research Question, in Plain Language
+
+> When a stock that is already rising suddenly attracts a lot of search attention, does
+> its subsequent performance beat a stock that rose the same amount but got no such
+> attention?
+
+Concretely:
+
+- **Stock A**: up over the past 8 weeks, and Google search volume just spiked.
+- **Stock B**: up the same amount over the past 8 weeks, but search volume stayed flat.
+- **Question**: over the next 1–4 weeks, does Stock A tend to outperform Stock B?
+
+*(A and B are an illustrative scenario built from the actual sort methodology below — not
+real tickers, not a trade recommendation.)*
+
+**Answer, from the data**: yes, on average. In the double-sort results, stocks like A
+("past winner + high attention") delivered CAR ≈ +30.8% over the following weeks, while
+stocks like B ("past winner + low attention") were statistically indistinguishable from
+zero (p=0.50). Search attention by itself — without pre-existing momentum — predicts
+nothing.
 
 ## 2. One-line Summary
 
@@ -30,6 +57,15 @@ This conclusion was not the starting hypothesis — it is the end point of
 three rounds of deliberately adversarial testing (see [Research
 Evolution](#9-research-evolution) below), each designed to try to explain
 away the previous round's result.
+
+## What This Project Is Not
+
+It is not a daily stock-tip service and not a trading system. It is an empirical test of
+how investor attention interacts with existing price momentum — a research question, not
+a signal generator. See [§4 in stock-ai-project](../stock-ai-project/README.md) for the
+project that actually does daily picks + LINE push, and
+[taiwan-stock-analyzer](../taiwan_stock_analyzer_zh/README.md) for general TWSE analysis —
+this project is neither of those.
 
 ## 4. Why This Project Matters
 
