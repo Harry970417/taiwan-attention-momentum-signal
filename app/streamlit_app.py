@@ -32,6 +32,53 @@ def load_csv_if_exists(path: Path):
     return pd.read_csv(path) if path.exists() else None
 
 
+def page_research_overview():
+    st.header("研究總覽")
+    st.caption("本頁是給第一次打開這個專案的人看的——不需要先懂統計方法")
+
+    st.info(
+        "**30 秒版**：Google 搜尋量異常上升（投資人注意力）不是一個能獨立預測股價的訊號，"
+        "而是「動能放大器」——過去已經上漲的股票，若同時出現搜尋熱度飆升，短期續漲效果更強；"
+        "這個效應不是三大法人籌碼造成的假象。"
+    )
+
+    st.markdown("#### 3 分鐘版：研究是怎麼一步步修正的")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("**v0.2 初步結果**")
+        st.markdown("8 週異常報酬 +14.2%，統計顯著。但拆組後發現效應集中在「過去已上漲」的股票。")
+    with col2:
+        st.markdown("**v0.3 控制動能**")
+        st.markdown("加入動能控制後係數縮小約 36%，但沒有消失，且效果隨時間拉長而擴大。")
+    with col3:
+        st.markdown("**v0.4 控制法人籌碼**")
+        st.markdown("注意力與三大法人買賣超相關性極低（\\|r\\|≤0.05），排除法人籌碼是替代解釋。")
+
+    caar_fig = FIGURES_DIR / "caar_attention_z2.png"
+    sort_fig = FIGURES_DIR / "v03_double_sort_heatmap_4w.png"
+    c1, c2 = st.columns(2)
+    if caar_fig.exists():
+        with c1:
+            st.image(str(caar_fig), caption="事件研究：注意力異常事件後的累積異常報酬（CAAR）")
+    if sort_fig.exists():
+        with c2:
+            st.image(str(sort_fig), caption="雙重排序：動能 × 注意力交叉分組報酬")
+
+    st.markdown("#### 這個研究不能告訴你什麼")
+    st.warning(
+        "僅涵蓋 50 檔大型權值股、2021–2026 多為多頭的期間；未模擬交易成本與放空限制；"
+        "不是可直接使用的交易訊號或獲利保證。完整限制見 `docs/limitations.md`。"
+    )
+
+    st.markdown(
+        "**完整版**：[README（英文）](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/README.md) · "
+        "[README_zh（中文，含完整研究演進）](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/README_zh.md) · "
+        "[方法論](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/docs/methodology.md) · "
+        "[研究限制](https://github.com/Harry970417/taiwan-attention-momentum-signal/blob/main/docs/limitations.md)"
+    )
+    st.caption("往下探索：左側「資料總覽」看資料收集狀況、「注意力雷達」看本週訊號、「個股查詢」看個股走勢、「研究結果」看完整圖表。")
+
+
 def page_overview(panel: pd.DataFrame):
     st.header("資料總覽")
     collection_status = load_csv_if_exists(TABLES_DIR / "data_collection_status_50.csv")
@@ -139,22 +186,34 @@ def main():
     st.title("Taiwan Attention Signal (TAS) v0.2")
     st.caption("研究型 MVP - 結果僅供研究參考,非投資建議")
 
-    if not PANEL_PATH.exists():
-        st.error(f"找不到 {PANEL_PATH}，請先執行 src/attention_panel_50.py")
+    panel_available = PANEL_PATH.exists()
+    page_options = ["研究總覽", "研究結果"]
+    if panel_available:
+        page_options[1:1] = ["資料總覽", "注意力雷達", "個股查詢"]
+    page = st.sidebar.radio("頁面", page_options)
+
+    if page == "研究總覽":
+        page_research_overview()
+        return
+    if page == "研究結果":
+        page_research_results()
+        return
+
+    # 以下頁面需要完整 50 檔週資料面板（data/processed/attention_weekly_panel_50.csv），
+    # 該檔案未隨 repo 提交（見 README §11），需先執行 scripts/run_all.py 產生
+    if not panel_available:
+        st.error(f"找不到 {PANEL_PATH}，請先執行 python scripts/run_all.py（見「研究總覽」頁的重現步驟）")
         return
 
     panel = load_panel()
     stock_list = pd.read_csv(ROOT / "config" / "stock_list_50.csv", dtype={"stock_id": str})
 
-    page = st.sidebar.radio("頁面", ["資料總覽", "注意力雷達", "個股查詢", "研究結果"])
     if page == "資料總覽":
         page_overview(panel)
     elif page == "注意力雷達":
         page_radar(panel)
     elif page == "個股查詢":
         page_stock_lookup(panel, stock_list)
-    elif page == "研究結果":
-        page_research_results()
 
 
 if __name__ == "__main__":
