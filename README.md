@@ -5,6 +5,11 @@
 A one-page Chinese portfolio summary PDF is available here:
 [Portfolio PDF Summary](exports/TAS_推甄作品集頁面.pdf)
 
+**New here?** [`docs/PROJECT_EXPLAINED_SIMPLY.md`](docs/PROJECT_EXPLAINED_SIMPLY.md) has a
+30-second / 3-minute / full-depth layered version of this whole page. If you want an
+independent check of the methodology (look-ahead bias, alignment, overclaiming) rather than
+just this project's own claims, see [`docs/RESEARCH_METHODOLOGY_AUDIT.md`](docs/RESEARCH_METHODOLOGY_AUDIT.md).
+
 ## 2. One-line Summary
 
 Google search-volume spikes for Taiwanese large-cap stocks do not behave as
@@ -140,6 +145,10 @@ A consolidated write-up across all three stages is available in the
 Additional figures and full data tables are in [`results/`](results/).
 
 ## 11. How to Reproduce
+
+See [`docs/REPRODUCIBILITY_GUIDE.md`](docs/REPRODUCIBILITY_GUIDE.md) for a version of the
+steps below annotated with what has actually been re-verified vs. what is transcribed from
+this section without independent re-execution.
 
 ```bash
 git clone <this-repo>

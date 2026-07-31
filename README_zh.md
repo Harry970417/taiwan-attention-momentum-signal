@@ -2,6 +2,11 @@
 
 *(English version: [README.md](README.md))*
 
+**第一次來？**[`docs/PROJECT_EXPLAINED_SIMPLY.md`](docs/PROJECT_EXPLAINED_SIMPLY.md)
+有 30 秒／3 分鐘／完整版的分層說明。想看獨立驗證（而非只看本專案自己的說法）可參考
+[`docs/RESEARCH_METHODOLOGY_AUDIT.md`](docs/RESEARCH_METHODOLOGY_AUDIT.md)；
+想重新跑一次分析可參考 [`docs/REPRODUCIBILITY_GUIDE.md`](docs/REPRODUCIBILITY_GUIDE.md)。
+
 ## 1. 我為什麼做這個題目
 
 台股散戶比重高、題材輪動快,Google 搜尋量是否能作為投資人注意力的代理
