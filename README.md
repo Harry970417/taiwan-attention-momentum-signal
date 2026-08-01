@@ -12,15 +12,15 @@ just this project's own claims, see [`docs/RESEARCH_METHODOLOGY_AUDIT.md`](docs/
 
 ## 15-Second Version
 
-**When a stock that's already rising suddenly gets a spike in Google searches, does it
-keep outperforming a similarly-rising stock that got no search attention? Yes — but only
-for stocks already trending up; search attention alone predicts nothing.**
+**I study whether Google search attention strengthens a stock's existing upward momentum.
+The data shows search attention alone is not a reliable signal, but when a stock already
+has momentum, higher attention is associated with more pronounced short-term return
+continuation.**
 
 ## 1. The Research Question, in Plain Language
 
-> When a stock that is already rising suddenly attracts a lot of search attention, does
-> its subsequent performance beat a stock that rose the same amount but got no such
-> attention?
+> Of two stocks that have both been rising recently, if one suddenly attracts a lot of
+> search attention, is its short-term price continuation more pronounced?
 
 Concretely:
 
@@ -31,27 +31,41 @@ Concretely:
 *(A and B are an illustrative scenario built from the actual sort methodology below — not
 real tickers, not a trade recommendation.)*
 
-**Answer, from the data**: yes, on average. In the double-sort results, stocks like A
-("past winner + high attention") delivered CAR ≈ +30.8% over the following weeks, while
-stocks like B ("past winner + low attention") were statistically indistinguishable from
-zero (p=0.50). Search attention by itself — without pre-existing momentum — predicts
-nothing.
+**Finding, from the data**: under this sample and model specification, stocks that already
+had upward momentum and higher search attention showed relatively stronger short-term
+return continuation — but this is a statistical association, not evidence that search
+attention causes price increases, and it should not be treated as a stable trading
+strategy. In the double-sort results, stocks like A ("past winner + high attention")
+delivered CAR ≈ +30.8% over the following weeks, while stocks like B ("past winner + low
+attention") were statistically indistinguishable from zero (p=0.50). Search attention by
+itself — without pre-existing momentum — is not a reliable predictor.
 
 ## 2. One-line Summary
 
 Google search-volume spikes for Taiwanese large-cap stocks do not behave as
-an independent predictive signal — they act as a **conditional amplifier of
-existing price momentum**, and this pattern survives after controlling for
-institutional (foreign/investment-trust/dealer) trading flows.
+an independent predictive signal. Under this study's sample and specification, they are
+**associated with stronger continuation of existing price momentum**, and this association
+survives after controlling for institutional (foreign/investment-trust/dealer) trading
+flows — but association is not causation; see [Cannot Conclude](#what-this-cannot-conclude)
+below.
 
 ## 3. Key Finding
 
 > Google Trends attention spikes do not behave as a standalone alpha
-> signal. Instead, they act as a conditional momentum amplifier: past
-> winner stocks with high search attention exhibit stronger short-term
-> continuation. This effect remains after controlling for institutional
-> trading flows, suggesting that the signal is not merely a proxy for
-> foreign or institutional buying.
+> signal. Instead, under this sample, past winner stocks with high search attention
+> exhibit stronger short-term continuation than past winners with low attention. This
+> association remains after controlling for institutional trading flows, suggesting it is
+> not merely a proxy for foreign or institutional buying. This is a statistical
+> association observed in-sample, not a causal claim and not a validated trading edge.
+
+## What This Cannot Conclude
+
+- Cannot prove that search attention **causes** price increases — this tests statistical
+  association, not causal mechanism.
+- Cannot guarantee the same pattern holds in future, out-of-sample periods.
+- Cannot be converted directly into a buy/sell signal.
+- Cannot equate statistical significance with actual tradeable profit (no transaction
+  costs, slippage, or short-sale constraints are modeled — see [Limitations](#13-limitations)).
 
 This conclusion was not the starting hypothesis — it is the end point of
 three rounds of deliberately adversarial testing (see [Research
