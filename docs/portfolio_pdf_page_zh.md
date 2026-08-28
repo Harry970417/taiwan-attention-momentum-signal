@@ -1,67 +1,25 @@
-# 注意力遇上動能：Google Trends 搜尋量、法人籌碼與台股短期續漲效應
+# Google Trends 台股注意力研究：修正版作品集摘要
 
-> 研究型量化金融作品，非交易策略。
+## 專案定位
 
----
+我用 Google Trends 週搜尋量、FinMind 股價與法人資料，研究台股大型權值股的投資人注意力是否與短期報酬和價格動能有關。
 
-## 1. 專案一句話摘要
+## 重大修正
 
-以真實資料檢驗 Google 搜尋量異常上升(投資人注意力)能否預測台股大型股短期報酬,並以三階段反證檢定確認其本質是「動能的條件式放大器」,而非獨立存在的訊號。
+後續稽核發現舊版管線有 critical availability / look-ahead bias：Google Trends 週資料的日期標籤被當成訊號可用日，可能把尚未完整可取得的週資料用於當週交易測試。
 
-## 2. 研究動機
+## 修正方式
 
-Google 搜尋量作為投資人注意力代理變數、預測短期報酬的現象,在美股文獻中已有實證支持,但台股缺乏公開可重現的對應研究。台股散戶比重高、題材輪動快,是檢驗此假設的合適市場。本研究目標不是尋找一個顯著結果,而是對該結果進行嚴格的反證檢驗。
+- 建立 as-of contract：`observation_period_start`、`observation_period_end`、`available_at`、`signal_date`、`first_tradeable_at`、`return_start`、`return_end`。
+- Google Trends 週資料至少延遲一個完整週期後才可形成訊號。
+- forward return 從訊號真正可交易之後開始。
+- 新增 no-look-ahead assertions 與單元測試。
+- corrected 輸出使用 `_asof_safe`，不覆蓋舊結果。
 
-## 3. 資料來源
+## 目前結論
 
-- 50 檔台股大型權值股(以 0050 成分股為主)
-- Google Trends(`pytrends`,週度搜尋量指數)
-- FinMind 公開 REST API(日收盤價、三大法人買賣超)
-- 樣本期間:2021/06–2026/06
-- 經 rolling window 與資料對齊後,共 237 週有效樣本
+截至 2026-08-02，此 checkout 缺少真實 `data/raw/` 與 `data/processed/`，因此尚未能重跑 corrected 結果。舊版「attention 是 conditional momentum amplifier」只能視為未修正對齊下的 retrospective association，不可作為可交易預測策略。
 
-## 4. 研究方法
+## 展示能力
 
-- 事件研究法(CAAR)
-- 截面 IC / ICIR
-- Fama-MacBeth 週度截面迴歸
-- 殘餘注意力因子(residual attention factor,正交化)
-- 雙重排序(double sort)/ 三重排序(triple sort)
-- 配對樣本法(matched sample)
-- 法人籌碼控制(institutional flow control)
-
-## 5. 三階段研究修正
-
-| 階段 | 內容 |
-|------|------|
-| v0.2 | 初步發現注意力效果顯著(CAAR、IC 皆為正向且統計顯著) |
-| v0.3 | 控制動能後,發現效應集中於過去已上漲股票,注意力不是獨立於動能存在的因子 |
-| v0.4 | 加入三大法人買賣超控制後,排除法人籌碼作為主要驅動解釋 |
-
-## 6. 核心結果
-
-- 8 週累積異常報酬(CAAR)+14.2%,t = 8.46
-- 週度截面 IC 為正且統計顯著,ICIR 約 0.31,t 值約 4.8
-- 以 Fama-MacBeth 控制動能後,attention_z 係數縮小約 36%,短期仍顯著(p<0.001)
-- 殘餘注意力因子(residual attention factor)於 1–2 週仍顯著,第 4 週轉為不顯著
-- 注意力因子與各項法人買賣超指標相關性極低,最大 |r| 約 0.05
-
-## 7. 最終結論
-
-- Google Trends 注意力訊號並非能夠獨立於動能存在的訊號
-- 其本質更接近台股大型股中「動能的條件式放大器」
-- 此效果並非單純由法人籌碼所造成
-
-## 8. 我的能力展現
-
-- **資料蒐集**:規劃並執行跨來源、跨時間的真實資料蒐集流程
-- **API 串接**:處理 Google Trends 限流、跨股票尺度校正、FinMind 相依性問題
-- **資料清理**:建立可重現的週度資料對齊與正規化管線
-- **統計檢定**:事件研究、截面迴歸、多重排序、配對樣本等完整方法工具箱
-- **量化研究**:從假設設定到因子建構的完整研究流程
-- **反證思維**:主動設計檢定嘗試推翻自己的初步正向結果
-- **研究誠信**:誠實記錄修正過程與未解決的方法論張力,不誇大結論
-
-## 9. GitHub 連結
-
-<https://github.com/Harry970417/taiwan-attention-momentum-signal>
+這個專案展示的是研究工程能力：能追查資料時間語意、主動推翻舊結論、把前視偏誤落成可測試契約，並誠實保留新舊結果 provenance。

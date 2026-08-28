@@ -1,75 +1,25 @@
-# 這個專案在做什麼？（分層閱讀版）
+# Project Explained Simply
 
-給第一次看到這個 repo、不確定要不要花時間讀下去的人。
+## 15 Seconds
 
----
+This project studies whether Google Trends search attention is associated with Taiwan
+large-cap stock momentum. The old predictive conclusion is invalidated until corrected
+as-of-safe results are regenerated.
 
-## 15 秒版
+## 60 Seconds
 
-我研究 Google 搜尋關注會不會強化股票原本的上漲動能。結果顯示，搜尋熱度本身不是可靠訊號，
-但在股票已具動能時，較高關注與更明顯的短期報酬延續有關。
+The original project collected weekly Google Trends SVI and daily FinMind market data,
+then tested event-study returns, IC, Fama-MacBeth regressions, double/triple sorts, and
+institutional-flow controls.
 
-## 60 秒版
+The critical correction is about time: a Google Trends weekly label is treated as the
+start of an observation week, not as an immediately tradeable signal. The corrected
+pipeline delays weekly SVI by a full weekly cycle before forming a signal, then starts
+forward returns only after the signal is actually tradeable.
 
-**具體例子**：股票 A 最近 8 週已上漲、Google 搜尋量也突然飆升；股票 B 同樣上漲了 8 週，
-但搜尋量沒有變化。接下來 1–4 週，股票 A 的報酬表現是否比股票 B 更強？
+## Current Conclusion
 
-**方法**：用 50 檔台股大型權值股（2021–2026）的週資料，把股票依「過去是否上漲」與
-「搜尋熱度是否飆升」交叉分組，比較各組後續報酬；再用迴歸控制動能與三大法人買賣超，
-確認這個關聯不是這兩者的假象。
-
-**研究發現**：在本研究樣本與模型設定下，原本具有上漲動能且搜尋關注較高的股票，後續短期
-報酬延續相對更明顯；但這是統計關聯，不代表搜尋熱度會造成股價上漲，也不能直接視為穩定
-交易策略。像股票 A 的組合後續累積報酬約 +30.8%；像股票 B 的組合統計上與零無異（p=0.50）。
-控制動能後這個關聯縮小但沒消失，控制法人籌碼後幾乎不變。
-
-**不能推論**：不能證明搜尋熱度造成股價上漲；不能保證未來樣本仍有相同結果；
-不能直接把研究係數轉換成買賣訊號；不能將統計顯著等同實際可交易獲利。
-
-**價值**：這不是一個可以直接拿去交易的訊號，而是對「投資人注意力如何與價格動能互動」
-這個學術問題的一個誠實、可重現的實證答案——包含研究者自己試圖推翻初步結果的完整過程。
-
-## 3 分鐘版
-
-1. **為什麼研究這個**：美股已經有文獻證實「搜尋熱度可以預測報酬」，但台股（散戶多、題材輪動快）
-   缺乏公開可重現的對應研究。
-2. **用什麼資料**：50 檔台股大型權值股，2021–2026 年，Google Trends 週搜尋量 + FinMind 每日股價
-   與三大法人買賣超。
-3. **怎麼做**：
-   - 把搜尋量換算成「相對自己過去 52 週的異常程度」（`attention_z`），避免不同股票的搜尋量基準不同。
-   - 用事件研究（CAAR）看搜尋熱度飆升後，股價的累積異常報酬怎麼走。
-   - 用 Fama-MacBeth 迴歸把「動能」「三大法人買賣超」的影響拿掉，看注意力效果還剩多少。
-4. **三階段修正過程**（這是本專案最重要的部分，不是找到顯著結果就停下來）：
-   | 階段 | 做了什麼 | 發現什麼 |
-   |---|---|---|
-   | v0.2 | 建立注意力因子，跑事件研究 | 8週異常報酬 +14.2%，看起來很漂亮 |
-   | v0.3 | 懷疑是動能的假象，控制過去報酬 | 效果縮小 36% 但沒消失，且集中在「過去贏家」股票 |
-   | v0.4 | 懷疑是法人籌碼的假象，控制三大法人買賣超 | 相關性極低（\|r\|≤0.05），法人籌碼被排除 |
-5. **最終結論**：在本研究樣本與模型設定下，原本具有上漲動能且搜尋關注較高的股票，
-   後續短期報酬延續相對更明顯；但這是統計關聯，不代表搜尋熱度會造成股價上漲，
-   也不能直接視為穩定交易策略。
-6. **不能推論／不能拿來做什麼**：不能證明搜尋熱度造成股價上漲；不能保證未來樣本仍有相同結果；
-   不能直接把研究係數轉換成買賣訊號；不能將統計顯著等同實際可交易獲利；
-   不能當交易策略用（沒有模擬交易成本、滑價、放空限制）；不能推論到中小型股或非多頭市場。
-
-看圖表版本：啟動 `streamlit run app/streamlit_app.py`，預設頁面「研究總覽」就是這個 3 分鐘版
-搭配實際圖表。
-
-## 完整版
-
-- 研究問題與資料細節：[README.md](../README.md)（英文完整版）／[README_zh.md](../README_zh.md)（中文研究演進敘事）
-- 方法論細節（因子建構公式、CAAR 窗口設定、Fama-MacBeth 模型設定）：[methodology.md](methodology.md)
-- 完整數字結果：[research_findings.md](research_findings.md)
-- 研究限制與已知方法論張力：[limitations.md](limitations.md)
-- 獨立方法論稽核記錄（本次新增）：[RESEARCH_METHODOLOGY_AUDIT.md](RESEARCH_METHODOLOGY_AUDIT.md)
-- 如何重新跑一次整個分析：[REPRODUCIBILITY_GUIDE.md](REPRODUCIBILITY_GUIDE.md)
-- 三階段完整報告：[reports/](../reports/)（`TAS_v0.2_Result_Snapshot.md` → `TAS_v0.3_Momentum_Control_Report.md` → `TAS_v0.4_Final_Research_Interpretation.md` → `final_research_report.md`）
-
-## 給不同讀者的價值
-
-| 讀者 | 這個專案對你的價值 |
-|---|---|
-| 一般使用者／非財金背景 | 了解一個「搜尋熱度能不能預測股價」的通俗問題，答案比想像中更細緻（不是能，也不是不能，是「看情況」） |
-| 投資人 | **不要**把這個當交易訊號用——作者本人在研究裡明確排除了這個用途 |
-| 研究生／教授 | 一個完整、誠實、可重現的三階段反證過程，方法涵蓋事件研究、截面迴歸、雙重/三重排序、配對樣本法 |
-| 面試官／推甄審查者 | `reports/final_showcase_checklist.md` 有 30 秒／90 秒口說版與預期追問清單 |
+No corrected empirical conclusion is available in this checkout because real
+`data/raw/` and `data/processed/` inputs are missing. The project should be described as
+a retrospective association study pending an as-of-safe rerun, not a real-time tradable
+predictive strategy.

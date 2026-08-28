@@ -1,74 +1,37 @@
-# TAS 最終展示清單
+# Final Showcase Checklist
 
-## 1. 專案狀態
+Status date: 2026-08-02
 
-- **是否可公開**:是。無 `data/raw/`、`data/processed/`、`.env`、token/secret/API key，無壞掉的 PDF，無舊草稿檔。
-- **最新 commit hash**:`f6411d3`(Polish report links and audit wording)
-- **GitHub repo 連結**:<https://github.com/Harry970417/taiwan-attention-momentum-signal>
-- **PDF 是否可開啟**:是。已從 GitHub raw content 實際下載驗證(`file` 指令確認為合法 PDF,1 page,221KB,與本地檔案位元組數一致),內容經文字擷取確認包含「注意力遇上動能」「Google Trends」「CAAR」「v0.2」「v0.3」「v0.4」「GitHub 連結」,不含「無法存取你的檔案」「ERR_FILE_NOT_FOUND」等錯誤頁面字樣。
-- **README 連結是否正常**:是。README.md 的「Portfolio PDF Summary」與 README_zh.md 的「推甄作品集 PDF 摘要頁」皆正確指向 `exports/TAS_推甄作品集頁面.pdf`(GitHub 網頁端 href 已解析為正確的 URL-encoded 路徑)。
+## Current Showcase Position
 
-## 2. 推甄可使用檔案
+The project should be showcased as a methodology remediation and reproducible research
+engineering project, not as a validated trading signal.
 
-| 檔案 | 用途 |
-|------|------|
-| `exports/TAS_推甄作品集頁面.pdf` | 一頁式作品集摘要 PDF,可直接附在推甄資料或印出帶去面試 |
-| `docs/portfolio_pdf_page_zh.md` | 上述 PDF 的原始 Markdown 內容(9 節式摘要:動機、資料、方法、三階段修正、核心結果、結論、能力展現) |
-| `docs/portfolio_writeup_zh.md` | 完整作品集文字版(約 1,200 字),適合貼入書面作品集或線上申請系統的長文欄位 |
-| `docs/autobiography_excerpt_zh.md` | 可直接插入自傳的一段研究經歷描述(約 300 字) |
-| `docs/interview_pitch_zh.md` | 90 秒面試口說逐字稿,面試現場口頭介紹用 |
+## Must Say
 
-## 3. 面試展示順序
+- Legacy results are superseded / invalidated for predictive interpretation.
+- Google Trends weekly availability was the critical issue.
+- The corrected code adds an explicit as-of contract and no-look-ahead tests.
+- Corrected empirical results are blocked in this checkout because real raw data is
+  missing.
+- The study is currently a retrospective association study, not a real-time tradable
+  predictive strategy.
 
-1. GitHub 首頁 README
-2. PDF 摘要頁
-3. v0.2 → v0.3 → v0.4 研究演進
-4. `final_research_report.md`
-5. 程式碼與資料管線
-6. Streamlit dashboard
+## Must Not Say
 
-## 4. 30 秒介紹稿
+- Do not claim corrected CAAR, IC, Fama-MacBeth, sort, matched-sample, or institutional
+  flow significance until `*_asof_safe` tables exist.
+- Do not use `data/sample/` as research evidence.
+- Do not describe the old "conditional momentum amplifier" result as a corrected finding.
 
-我做了一個獨立研究:Google 搜尋量的異常上升,也就是投資人注意力,能不能預測台股大型股的短期報酬?第一輪結果很漂亮——8 週異常報酬 14%,統計顯著。但我沒有停在這裡,而是主動用雙重排序和迴歸去控制動能與法人籌碼,結果發現這其實是「動能的條件式放大器」,不是一個獨立的訊號。我把整個從正向結果到反證修正的過程都留在報告裡,因為這個過程比一個漂亮的顯著結果,更能說明我做研究的方式。
+## Current Artifacts
 
-## 5. 90 秒介紹稿
-
-引用自 `docs/interview_pitch_zh.md`:
-
-> 我做過一個獨立研究:Google 搜尋量的異常上升——也就是投資人注意力——能不能預測台股大型股的短期報酬?
->
-> 我用 50 檔大型權值股、約 4.5 年、237 週的真實資料,Google Trends 抓搜尋量,FinMind 抓價格跟法人籌碼。第一輪結果很漂亮:注意力上升後 8 週累積異常報酬有 14%,統計顯著;截面 IC 為正且穩定,ICIR 大概 0.3。
->
-> 但我懷疑這可能只是動能的假象,所以做了雙重排序跟 Fama-MacBeth 迴歸去控制動能,發現效應確實集中在過去已經上漲的股票,控制後係數縮小了,但沒有消失。接著我又懷疑是不是法人買盤在推動,結果發現注意力跟法人籌碼幾乎沒有相關,控制進去以後,注意力的效果幾乎不變。
->
-> 所以最後的結論是:這個訊號不是一個能夠獨立於動能存在的 alpha,而是動能的「條件式放大器」。我把整個從初步結果到最終結論的修正過程都留在報告裡,因為這個過程,比一個漂亮的顯著結果,更能說明我做研究的方式。
-
-## 6. 教授可能追問問題
-
-1. **為什麼用 Google Trends?**
-   它是美股文獻中已有實證支持的投資人注意力代理變數,但台股缺乏公開可重現的對應研究,是可以自己動手填補的空白。
-
-2. **為什麼不是單純動能?**
-   雙重排序顯示效應幾乎完全集中在過去已上漲的股票上(贏家組 CAR +30.8% vs 非贏家組 -1.1% 不顯著),且 Fama-MacBeth 控制動能後係數縮小約 36%,證明注意力與動能高度糾纏,不能簡單歸為獨立因子。
-
-3. **為什麼要控制法人籌碼?**
-   台股短期報酬常受三大法人買賣超影響,若不排除法人資金流入同時解釋了漲幅與搜尋量上升的可能性,結論就不站得住腳。結果顯示相關性極低(|r|≈0.05),法人籌碼不是驅動來源。
-
-4. **為什麼不用交易策略包裝?**
-   這是一個回答「注意力訊號代表什麼」的學術研究,不是可獲利的交易策略;用策略包裝反而會模糊研究本身要回答的因果/機制問題,也可能誇大結論的實務意涵。
-
-5. **這個研究最大限制是什麼?**
-   線性交互項(注意力×動能、注意力×法人流向)在迴歸中不顯著,與雙重/三重排序呈現的強烈型態有落差,顯示真實交互作用可能是門檻式、非線性的,目前方法尚未完全捕捉,這個張力有誠實記錄但未解決。
-
-6. **如果繼續做,你會怎麼改進?**
-   嘗試非線性/門檻迴歸模型(如分位數迴歸或 threshold regression)捕捉交互效應,並擴大樣本至更多股票或更長期間以提高檢定力。
-
-7. **這跟財金/資管有什麼關係?**
-   同時涉及行為財務學(注意力驅動的定價異常)、資產定價實證方法(事件研究、截面迴歸、因子排序)與資料工程(跨來源 API 整合、可重現的分析管線),是量化研究與資訊系統技能的交集。
-
-8. **你在這個專案中最能展現什麼能力?**
-   反證思維與研究誠信——不是找到一個顯著結果就停下來,而是主動設計檢定去嘗試推翻自己的初步發現,並誠實記錄修正過程與未解決的方法論張力。
-
-## 7. 最終結論
-
-這個專案可以正式放入推甄作品集、GitHub pinned repo、面試展示清單。
+- `README.md`
+- `README_zh.md`
+- `docs/methodology.md`
+- `docs/limitations.md`
+- `docs/research_findings.md`
+- `docs/portfolio_writeup_zh.md`
+- `reports/final_research_report.md`
+- `results/tables/legacy_results_provenance.csv`
+- `results/tables/asof_safe_legacy_comparison.csv`

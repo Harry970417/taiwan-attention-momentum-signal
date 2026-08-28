@@ -1,122 +1,47 @@
-# 量化金融研究專案：注意力遇上動能——Google Trends 搜尋量、法人籌碼與台股短期續漲效應
+# Taiwan Attention Momentum Signal
 
-*(English version: [README.md](README.md))*
+繁中說明版。英文版見 [README.md](README.md)。
 
-**第一次來？**[`docs/PROJECT_EXPLAINED_SIMPLY.md`](docs/PROJECT_EXPLAINED_SIMPLY.md)
-有 15 秒／60 秒／3 分鐘的分層說明。想看獨立驗證（而非只看本專案自己的說法）可參考
-[`docs/RESEARCH_METHODOLOGY_AUDIT.md`](docs/RESEARCH_METHODOLOGY_AUDIT.md)；
-想重新跑一次分析可參考 [`docs/REPRODUCIBILITY_GUIDE.md`](docs/REPRODUCIBILITY_GUIDE.md)。
+## 重大方法狀態（2026-08-02）
 
-## 15 秒版
+本專案舊版 headline 結果已標記為 **superseded / invalidated**，不得再解讀為
+real-time tradable predictive strategy。
 
-**我研究 Google 搜尋關注會不會強化股票原本的上漲動能。結果顯示，搜尋熱度本身不是可靠訊號，
-但在股票已具動能時，較高關注與更明顯的短期報酬延續有關。**
+根因是舊管線把 Google Trends 週資料的日期標籤直接當成訊號可用日。若該日期其實是
+Google Trends 週資料的觀測週起始日，舊分析就可能在同一週交易測試中使用當時尚未完整可取得的
+SVI，形成 availability / look-ahead bias。
 
-## 0. 研究問題（白話版）
+修正後管線已建立 as-of-safe contract：
 
-> 兩檔近期都在上漲的股票，其中一檔突然受到大量搜尋，接下來的短期價格延續是否會更明顯？
+`observation_period_start` -> `observation_period_end` -> `available_at` ->
+`signal_date` -> `first_tradeable_at` -> `return_start` -> `return_end`
 
-具體來說：
+保守規則是：未能證明當時已可取得的週資料，不得用於當週交易；Google Trends 週資料至少延遲一個完整週期後才形成訊號；forward return 必須從訊號真正可交易之後開始。
 
-- **股票 A**：最近八週已上漲，Google 搜尋量也突然增加。
-- **股票 B**：最近八週同樣上漲，但搜尋量沒有明顯增加。
-- **研究問題**：接下來一至數週，股票 A 是否比股票 B 有更強的報酬延續？
+目前此 checkout 缺少 `data/raw/` 與 `data/processed/`，因此尚未用真實原始資料重跑出
+`*_asof_safe` corrected 結果。在 corrected 結果產生前，本研究只能降級描述為
+**retrospective association study**，不是可即時交易的預測策略。
 
-*（A、B 是根據下方雙重排序方法建構的示意情境，不是真實股票代號，不是投資建議。）*
+## 目前可相信的內容
 
-**研究發現**：在本研究樣本與模型設定下，原本具有上漲動能且搜尋關注較高的股票，後續短期報酬
-延續相對更明顯；但這是統計關聯，不代表搜尋熱度會造成股價上漲，也不能直接視為穩定交易策略。
-雙重排序結果顯示，像 A 這樣「過去上漲＋高搜尋關注」的股票，後續累積異常報酬約 +30.8%；
-而像 B 這樣「過去上漲＋低搜尋關注」的股票，統計上與零沒有差異（p=0.50）。搜尋熱度單獨存在、
-沒有既有動能時，不是穩定的預測訊號。
+- 程式層級已加入 as-of-safe 日期欄位與 no-look-ahead assertions。
+- 新增測試涵蓋跨週、跨月、跨年、假日、缺 forward 價格、Google Trends 週界線與 trailing z-score。
+- 舊結果表已透過 `results/tables/legacy_results_provenance.csv` 標記為 superseded / invalidated。
+- `results/tables/asof_safe_legacy_comparison.csv` 會在 corrected 結果存在時產生新舊差異表；目前因 corrected tables 尚未生成而標示 blocked。
 
-**不能推論**：不能證明搜尋熱度造成股價上漲；不能保證未來樣本仍有相同結果；
-不能直接把研究係數轉換成買賣訊號；不能將統計顯著等同實際可交易獲利。
+## 舊結論狀態
 
-## 這個專案不是什麼
+舊版曾主張 Google Trends attention 是「conditional momentum amplifier」。此說法目前只能作為未修正 alignment 下的 retrospective association，不可作為 corrected empirical conclusion，也不可寫成可交易預測策略。
 
-它不是每天報明牌的服務，也不是交易系統。它是一項關於「投資人注意力如何與既有價格動能
-互動」的實證研究問題，不是訊號產生器。想要每日推薦＋LINE 推播，請看
-[stock-ai-project](../stock-ai-project/README.md)；想查一般台股資料分析，請看
-[taiwan-stock-analyzer](../taiwan_stock_analyzer_zh/README.md)——本專案兩者都不是。
+## 如何重跑 corrected pipeline
 
-## 1. 我為什麼做這個題目
+需要真實原始資料，不可使用 `data/sample/` 當研究證據：
 
-台股散戶比重高、題材輪動快,Google 搜尋量是否能作為投資人注意力的代理
-變數、進而預測短期報酬,是一個在美股文獻中已有實證支持、但在台股缺乏
-公開可重現研究的題目。我想知道:這個現象在台股是否存在,以及如果存在,
-它是不是一個真正獨立的訊號。
+```powershell
+python scripts\run_data_collection.py
+python scripts\run_event_study.py
+python scripts\run_momentum_control.py
+python scripts\run_institutional_flow_analysis.py
+```
 
-## 2. 一開始的假設
-
-一開始的假設很單純:搜尋量異常上升(attention shock)代表投資人注意力
-突然集中在某檔股票上,這種注意力可能會推升短期買盤,產生可預測的超額
-報酬。這也是 deHaan、Barber 等人在美股文獻中的核心發現。
-
-## 3. v0.2:CAAR 與 IC 顯著,但可能混入動能
-
-在 50 檔台股大型權值股上建立注意力因子後,事件研究(CAAR)與截面 IC
-分析都顯示統計上顯著的正向結果(CAR@+8週 +14.2%,IC/ICIR 約 0.31)。
-但進一步用過去報酬把股票分成兩組後發現:效應幾乎完全集中在「過去已經
-上漲」的股票上,「過去未上漲」的股票效應在統計上不顯著(p=0.50)。這讓
-我開始懷疑,這個效應是不是只是動能的另一種呈現方式。
-
-## 4. v0.3:控制動能後,效果縮小但沒有完全消失
-
-用 Fama-MacBeth 週度截面迴歸控制過去 4 週、12 週報酬後,注意力因子的
-係數縮小了約三分之一,但在多數模型設定下仍然統計顯著。用配對樣本法
-(找動能、成交量、波動度都相似的股票做對照組)比較後,注意力事件股票
-仍比對照組有顯著更高的報酬,且效果隨時間拉長而擴大,沒有消失。雙重排序
-進一步顯示:注意力效果的強度與過去動能高度正相關,在「贏家」股票中效果
-最強,在「輸家」股票中幾乎沒有效果。結論是:注意力不是純粹的動能代理,
-但也不是獨立於動能存在的訊號,比較接近「動能與注意力的交互作用」。
-
-## 5. v0.4:加入三大法人後,發現效果不是法人籌碼造成
-
-台股另一個常見的短期報酬驅動力是外資、投信、自營商的買賣超。如果法人
-資金流入同時解釋了股價上漲(動能)與散戶注意力上升(可能是法人買盤帶動
-成交熱度、間接推高搜尋量),那麼 v0.3 觀察到的殘餘效應也可能只是法人
-籌碼的間接反映。v0.4 重新抓取三大法人買賣超的機構別明細,檢驗這個假設,
-結果是**否定的**:注意力因子與所有法人買賣超變數的相關性都很低(最高
-僅 0.05),加入法人籌碼控制後,注意力因子的迴歸係數幾乎沒有縮小(對比
-加入動能控制時縮小約三分之一)。三維排序更直接證明:在「過去贏家」股票
-中,高注意力的效果不論法人是買超、中性還是賣超都同樣強勁。法人籌碼被
-明確排除為 v0.3 效應的替代解釋。
-
-## 6. 最終結論：統計關聯，不是因果證據
-
-三個版本的檢定過程，一步步排除了「純粹動能」與「法人籌碼」兩個最主要的
-替代解釋，最終結論是：**在本研究樣本與模型設定下，原本具有上漲動能且搜尋關注較高的
-股票，後續短期報酬延續相對更明顯；但這是統計關聯，不代表搜尋熱度會造成股價上漲，
-也不能直接視為穩定交易策略。** 這個結論不夠「性感」，但它是誠實、經得起檢驗的。
-
-## 7. 這個作品展現的能力
-
-- **資料蒐集工程**:處理 Google Trends 限流、跨股票尺度不可比、FinMind
-  套件在新版 Python 環境下的相依性衝突等實務問題,建立可續跑、可追蹤的
-  資料管線。
-- **量化研究方法**:事件研究(CAAR)、截面 IC/ICIR、Fama-MacBeth 迴歸、
-  殘差因子正交化、雙重/三維排序、配對樣本法——涵蓋量化選股研究常見的
-  完整工具箱。
-- **統計檢定與研究誠信**:面對自己一開始的正向結果,主動設計多種方法
-  嘗試推翻它,而不是滿足於第一個顯著的 p 值。三個版本的修正過程完整
-  保留在 [`reports/`](reports/) 資料夾中。
-- **誠實報告**:不誇大結果、明確寫出限制、拒絕把研究結果包裝成可直接
-  交易的策略。
-
-完整技術細節見 [`docs/methodology.md`](docs/methodology.md) 與
-[`docs/research_findings.md`](docs/research_findings.md);研究限制見
-[`docs/limitations.md`](docs/limitations.md);推甄作品集版本見
-[`docs/portfolio_writeup_zh.md`](docs/portfolio_writeup_zh.md)。
-
-## 作品集延伸材料
-
-- [推甄作品集版](docs/portfolio_writeup_zh.md)
-- [自傳可插入段落](docs/autobiography_excerpt_zh.md)
-- [90 秒面試口說版](docs/interview_pitch_zh.md)
-- [推甄作品集 PDF 摘要頁](exports/TAS_推甄作品集頁面.pdf)
-
-## 免責聲明
-
-本專案為研究與教育性質,不構成投資建議,也不是一個可直接獲利的交易
-策略。所有歷史資料的統計型態不保證未來表現。
+如果 Google Trends / FinMind API quota、授權、歷史資料不足或資料定義漂移導致資料不完整，必須停止對應子流程並如實回報，不得用 demo、mock 或 synthetic data 補成研究結果。
