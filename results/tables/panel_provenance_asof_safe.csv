@@ -1,0 +1,5 @@
+﻿artifact,path,status
+legacy_v03_panel,data\processed\attention_weekly_panel_v03.csv,missing
+corrected_v03_panel,data\processed\attention_weekly_panel_v03_asof_safe.csv,missing
+legacy_v04_panel,data\processed\attention_weekly_panel_v04.csv,missing
+corrected_v04_panel,data\processed\attention_weekly_panel_v04_asof_safe.csv,missing
