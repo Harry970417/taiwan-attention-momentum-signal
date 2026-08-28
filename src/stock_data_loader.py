@@ -47,7 +47,8 @@ def fetch_price(stock_id: str):
 
 def fetch_institutional(stock_id: str):
     out_path = RAW_DIR / f"inst_{stock_id}.csv"
-    if out_path.exists():
+    breakdown_path = RAW_DIR / f"inst_breakdown_{stock_id}.csv"
+    if out_path.exists() and breakdown_path.exists():
         return True, ""
     try:
         payload = fetch_dataset("TaiwanStockInstitutionalInvestorsBuySell", stock_id)
@@ -57,9 +58,10 @@ def fetch_institutional(stock_id: str):
         if not data:
             return False, "Empty data array"
         df = pd.DataFrame(data)
+        df.to_csv(breakdown_path, index=False, encoding="utf-8-sig")
         net = (
-            df.groupby("date")
-            .apply(lambda g: (g["buy"] - g["sell"]).sum(), include_groups=False)
+            df.groupby("date")[["buy", "sell"]]
+            .apply(lambda g: (g["buy"] - g["sell"]).sum())
             .reset_index(name="institutional_net_shares")
         )
         net.insert(1, "stock_id", stock_id)
