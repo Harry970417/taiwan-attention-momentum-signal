@@ -1,4 +1,4 @@
-"""Stage 2: build the attention factor panel and run the CAAR event study."""
+"""Stage 2: build the as-of-safe attention factor panel and CAAR event study."""
 import sys
 from pathlib import Path
 

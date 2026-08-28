@@ -1,6 +1,6 @@
-"""Stage 3: momentum-controlled Fama-MacBeth regression and double sort.
+"""Stage 3: as-of-safe momentum-controlled Fama-MacBeth regression and double sort.
 
-Requires attention_weekly_panel_v03.csv from run_event_study.py (the panel
+Requires attention_weekly_panel_v03_asof_safe.csv from run_event_study.py (the panel
 build step also constructs the momentum/volume/volatility control
 variables used here).
 """
