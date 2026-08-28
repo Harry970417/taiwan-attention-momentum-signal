@@ -10,8 +10,10 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from asof_contract import assert_no_lookahead_panel
+
 ROOT = Path(__file__).resolve().parent.parent
-PANEL_PATH = ROOT / "data" / "processed" / "attention_weekly_panel_v04.csv"
+PANEL_PATH = ROOT / "data" / "processed" / "attention_weekly_panel_v04_asof_safe.csv"
 TABLES_DIR = ROOT / "results" / "tables"
 
 HORIZONS = ["future_1w_excess_return", "future_2w_excess_return", "future_4w_excess_return"]
@@ -21,6 +23,7 @@ MIN_OBS_BUFFER = 5
 def load_panel():
     df = pd.read_csv(PANEL_PATH, parse_dates=["week"])
     df["stock_id"] = df["stock_id"].astype(str)
+    assert_no_lookahead_panel(df)
     return df
 
 
@@ -116,7 +119,7 @@ def main():
             print(f"{model_name} | {horizon}: attention_z coef={agg['coefficient']}, "
                   f"t={agg['t_stat']}, p={agg['p_value']}, n_weeks={agg['n_weeks']}")
 
-    pd.DataFrame(summary_rows).to_csv(TABLES_DIR / "v04_regression_with_chips_summary.csv", index=False, encoding="utf-8-sig")
+    pd.DataFrame(summary_rows).to_csv(TABLES_DIR / "v04_regression_with_chips_summary_asof_safe.csv", index=False, encoding="utf-8-sig")
 
     # Model E: interaction terms
     interaction_rows = []
@@ -130,8 +133,8 @@ def main():
             interaction_rows.append(agg)
             print(f"Model E | {horizon} | {var}: coef={agg['coefficient']}, t={agg['t_stat']}, p={agg['p_value']}")
 
-    pd.DataFrame(interaction_rows).to_csv(TABLES_DIR / "v04_interaction_model_summary.csv", index=False, encoding="utf-8-sig")
-    print(f"\nSaved v04_regression_with_chips_summary.csv and v04_interaction_model_summary.csv")
+    pd.DataFrame(interaction_rows).to_csv(TABLES_DIR / "v04_interaction_model_summary_asof_safe.csv", index=False, encoding="utf-8-sig")
+    print(f"\nSaved v04_regression_with_chips_summary_asof_safe.csv and v04_interaction_model_summary_asof_safe.csv")
 
 
 if __name__ == "__main__":

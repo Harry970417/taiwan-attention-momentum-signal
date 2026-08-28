@@ -12,8 +12,10 @@ matplotlib.rcParams["font.sans-serif"] = ["Microsoft JhengHei", "DejaVu Sans"]
 matplotlib.rcParams["axes.unicode_minus"] = False
 import matplotlib.pyplot as plt
 
+from asof_contract import assert_no_lookahead_panel
+
 ROOT = Path(__file__).resolve().parent.parent
-PANEL_PATH = ROOT / "data" / "processed" / "attention_weekly_panel_v04.csv"
+PANEL_PATH = ROOT / "data" / "processed" / "attention_weekly_panel_v04_asof_safe.csv"
 TABLES_DIR = ROOT / "results" / "tables"
 FIGURES_DIR = ROOT / "results" / "figures"
 
@@ -25,6 +27,7 @@ CHIP_LABELS = ["inst_selling", "inst_neutral", "inst_buying"]
 def load_panel():
     df = pd.read_csv(PANEL_PATH, parse_dates=["week"])
     df["stock_id"] = df["stock_id"].astype(str)
+    assert_no_lookahead_panel(df)
     return df
 
 
@@ -49,13 +52,13 @@ def main():
     sub = panel.dropna(subset=["mom_bucket", "att_bucket", "chip_bucket"])
     horizons = ["future_1w_excess_return", "future_2w_excess_return", "future_4w_excess_return"]
     table = sub.groupby(["mom_bucket", "att_bucket", "chip_bucket"], observed=True)[horizons].agg(["mean", "count"])
-    table.to_csv(TABLES_DIR / "v04_triple_sort_momentum_attention_chips.csv", encoding="utf-8-sig")
+    table.to_csv(TABLES_DIR / "v04_triple_sort_momentum_attention_chips_asof_safe.csv", encoding="utf-8-sig")
     print(table.to_string())
 
     p4w = sub.groupby(["mom_bucket", "att_bucket", "chip_bucket"], observed=True)["future_4w_excess_return"].mean()
 
-    for mom_label, fname in [("winner", "v04_triple_sort_winner_group_heatmap.png"),
-                              ("neutral", "v04_triple_sort_neutral_group_heatmap.png")]:
+    for mom_label, fname in [("winner", "v04_triple_sort_winner_group_heatmap_asof_safe.png"),
+                              ("neutral", "v04_triple_sort_neutral_group_heatmap_asof_safe.png")]:
         pivot = p4w.loc[mom_label].unstack()
         pivot = pivot.reindex(index=ATT_LABELS, columns=CHIP_LABELS)
         fig, ax = plt.subplots(figsize=(6, 5))

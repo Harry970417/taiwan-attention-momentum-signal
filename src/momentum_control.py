@@ -22,17 +22,22 @@ from scipy import stats
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
+from asof_contract import assert_no_lookahead_panel
+
 ROOT = Path(__file__).resolve().parent.parent
-PANEL_PATH = ROOT / "data" / "processed" / "attention_weekly_panel_v03.csv"
+PANEL_PATH = ROOT / "data" / "processed" / "attention_weekly_panel_v03_asof_safe.csv"
+RESIDUAL_PANEL_PATH = ROOT / "data" / "processed" / "attention_weekly_panel_v03_residual_asof_safe.csv"
 TABLES_DIR = ROOT / "results" / "tables"
 
 HORIZONS = ["future_1w_excess_return", "future_2w_excess_return", "future_4w_excess_return"]
 MIN_OBS_BUFFER = 5
+RESIDUAL_CONTROLS = ["past_4w_return", "past_12w_return", "volume_ratio_4w", "volatility_12w", "liquidity_rank"]
 
 
 def load_panel():
     df = pd.read_csv(PANEL_PATH, parse_dates=["week"])
     df["stock_id"] = df["stock_id"].astype(str)
+    assert_no_lookahead_panel(df)
     return df
 
 
@@ -114,6 +119,58 @@ def pooled_two_way_fe(panel: pd.DataFrame, horizon: str, continuous: list[str]):
                 "note": f"FAILED: {type(e).__name__}: {e}"}
 
 
+def build_residual_panel(panel: pd.DataFrame) -> pd.DataFrame:
+    out = panel.copy()
+    out["residual_attention_z"] = np.nan
+    for week, grp in out.groupby("week"):
+        sub = grp.dropna(subset=["attention_z"] + RESIDUAL_CONTROLS)
+        if sub.empty:
+            continue
+        X = sub[RESIDUAL_CONTROLS].reset_index(drop=True)
+        X.insert(0, "const", 1.0)
+        y = sub["attention_z"].reset_index(drop=True).to_numpy(dtype=float)
+        Xm = X.to_numpy(dtype=float)
+        n, k = Xm.shape
+        if n < k + MIN_OBS_BUFFER or np.linalg.matrix_rank(Xm) < k:
+            continue
+        beta, *_ = np.linalg.lstsq(Xm, y, rcond=None)
+        out.loc[sub.index, "residual_attention_z"] = y - Xm @ beta
+    assert_no_lookahead_panel(out)
+    return out
+
+
+def factor_ic_summary(panel: pd.DataFrame, factor: str) -> pd.DataFrame:
+    rows = []
+    for horizon in HORIZONS:
+        ics = []
+        for _, grp in panel.groupby("week"):
+            sub = grp[[factor, horizon]].dropna()
+            if len(sub) < 10:
+                continue
+            ic = sub[factor].corr(sub[horizon], method="spearman")
+            if pd.notna(ic):
+                ics.append(ic)
+        s = pd.Series(ics, dtype=float)
+        if len(s) > 1:
+            t_stat, p_value = stats.ttest_1samp(s, 0)
+            rows.append({
+                "IC_mean": s.mean(),
+                "IC_std": s.std(),
+                "ICIR": s.mean() / s.std() if s.std() else None,
+                "t_stat": t_stat,
+                "p_value": p_value,
+                "positive_IC_ratio": (s > 0).mean(),
+                "n_weeks": len(s),
+                "factor": factor,
+                "horizon": horizon,
+            })
+        else:
+            rows.append({"IC_mean": None, "IC_std": None, "ICIR": None, "t_stat": None,
+                         "p_value": None, "positive_IC_ratio": None, "n_weeks": len(s),
+                         "factor": factor, "horizon": horizon})
+    return pd.DataFrame(rows)
+
+
 def main():
     TABLES_DIR.mkdir(parents=True, exist_ok=True)
     panel = load_panel()
@@ -147,9 +204,17 @@ def main():
         print(f"Model5 (pooled 2-way FE) | {horizon}: coef={m5.get('coefficient')}, "
               f"t={m5.get('t_stat')}, p={m5.get('p_value')}")
 
-    pd.DataFrame(summary_rows).to_csv(TABLES_DIR / "v03_fama_macbeth_summary.csv", index=False, encoding="utf-8-sig")
-    pd.concat(by_horizon_rows, ignore_index=True).to_csv(TABLES_DIR / "v03_regression_by_horizon.csv", index=False, encoding="utf-8-sig")
-    print(f"\nSaved v03_fama_macbeth_summary.csv and v03_regression_by_horizon.csv to {TABLES_DIR}")
+    pd.DataFrame(summary_rows).to_csv(TABLES_DIR / "v03_fama_macbeth_summary_asof_safe.csv", index=False, encoding="utf-8-sig")
+    pd.concat(by_horizon_rows, ignore_index=True).to_csv(TABLES_DIR / "v03_regression_by_horizon_asof_safe.csv", index=False, encoding="utf-8-sig")
+
+    residual_panel = build_residual_panel(panel)
+    residual_panel.to_csv(RESIDUAL_PANEL_PATH, index=False, encoding="utf-8-sig")
+    factor_ic_summary(residual_panel, "residual_attention_z").to_csv(
+        TABLES_DIR / "v03_residual_ic_summary_asof_safe.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
+    print(f"\nSaved as-of-safe Fama-MacBeth, residual panel, and residual IC outputs to {TABLES_DIR}")
 
 
 if __name__ == "__main__":

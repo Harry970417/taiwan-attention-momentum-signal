@@ -15,12 +15,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from asof_contract import assert_no_lookahead_panel
+
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_CSV = ROOT / "config" / "stock_list_50.csv"
 RAW_DIR = ROOT / "data" / "raw"
-V03_PANEL = ROOT / "data" / "processed" / "attention_weekly_panel_v03_residual.csv"
-OUT_PANEL = ROOT / "data" / "processed" / "attention_weekly_panel_v04.csv"
-COVERAGE_OUT = ROOT / "results" / "tables" / "v04_chip_data_coverage.csv"
+V03_PANEL = ROOT / "data" / "processed" / "attention_weekly_panel_v03_residual_asof_safe.csv"
+OUT_PANEL = ROOT / "data" / "processed" / "attention_weekly_panel_v04_asof_safe.csv"
+COVERAGE_OUT = ROOT / "results" / "tables" / "v04_chip_data_coverage_asof_safe.csv"
 
 DEALER_NAMES = ["Dealer_self", "Dealer_Hedging", "Foreign_Dealer_Self"]
 
@@ -28,8 +30,16 @@ DEALER_NAMES = ["Dealer_self", "Dealer_Hedging", "Foreign_Dealer_Self"]
 def load_daily_flows(stock_id: str):
     path = RAW_DIR / f"inst_breakdown_{stock_id}.csv"
     if not path.exists():
+        path = RAW_DIR / f"inst_{stock_id}.csv"
+    if not path.exists():
         return None
     df = pd.read_csv(path, parse_dates=["date"])
+    if "name" not in df.columns and "institutional_net_shares" in df.columns:
+        return df.set_index("date")[["institutional_net_shares"]].rename(
+            columns={"institutional_net_shares": "total_net"}
+        ).assign(foreign_net=np.nan, trust_net=np.nan, dealer_net=np.nan)[
+            ["foreign_net", "trust_net", "dealer_net", "total_net"]
+        ].sort_index()
     df["net"] = df["buy"] - df["sell"]
     wide = df.pivot_table(index="date", columns="name", values="net", aggfunc="sum").fillna(0)
     out = pd.DataFrame(index=wide.index)
@@ -61,6 +71,7 @@ def main():
     stocks = pd.read_csv(CONFIG_CSV, dtype={"stock_id": str})
     panel = pd.read_csv(V03_PANEL, parse_dates=["week"])
     panel["stock_id"] = panel["stock_id"].astype(str)
+    assert_no_lookahead_panel(panel)
 
     chip_rows = []
     coverage_rows = []
@@ -76,10 +87,12 @@ def main():
         price = pd.read_csv(price_path, parse_dates=["date"]).set_index("date")
         feats = rolling_flow_features(flows, price["Trading_Volume"])
 
-        sub_weeks = panel[panel["stock_id"] == sid]["week"]
+        sub_weeks = panel[panel["stock_id"] == sid][["week", "feature_asof_trade_date"]]
         n_usable = 0
-        for wk in sub_weeks:
-            d = nearest_at_or_before(feats.index, wk)
+        for rec_week in sub_weeks.itertuples(index=False):
+            wk = rec_week.week
+            feature_date = pd.Timestamp(rec_week.feature_asof_trade_date)
+            d = nearest_at_or_before(feats.index, feature_date)
             if d is None:
                 continue
             row = feats.loc[d]
@@ -121,6 +134,10 @@ def main():
 
     keep_cols = [
         "stock_id", "stock_name", "industry", "week",
+        "google_trends_week", "observation_period_start", "observation_period_end",
+        "available_at", "signal_date", "first_tradeable_at", "feature_asof_trade_date",
+        "return_start", "return_end_1w", "return_end_2w", "return_end_4w",
+        "availability_policy", "availability_lag_days", "z_window_end", "SVI_window_n",
         "attention_z", "attention_shock", "residual_attention_z", "is_attention_event_z2",
         "past_1w_return", "past_4w_return", "past_8w_return", "past_12w_return", "past_26w_return",
         "future_1w_excess_return", "future_2w_excess_return", "future_4w_excess_return",
@@ -135,6 +152,7 @@ def main():
         "total_inst_net_buy_ratio_1w", "total_inst_net_buy_ratio_4w",
     ]
     merged = merged[keep_cols]
+    assert_no_lookahead_panel(merged)
     merged.to_csv(OUT_PANEL, index=False, encoding="utf-8-sig")
     pd.DataFrame(coverage_rows).to_csv(COVERAGE_OUT, index=False, encoding="utf-8-sig")
 
