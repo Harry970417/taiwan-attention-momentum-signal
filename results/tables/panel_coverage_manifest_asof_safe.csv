@@ -1,51 +1,51 @@
 ﻿stock_id,stock_name,industry,status,trends_present,price_present,benchmark_present,panel_rows,future_4w_excess_rows,minimum_panel_rows,minimum_future_4w_excess_rows,reason
-2330,台積電,半導體,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2454,聯發科,半導體(IC設計),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2308,台達電,電子零組件(電源供應),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2317,鴻海,電子代工,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-3711,日月光投控,半導體(封測),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2303,聯電,半導體(晶圓代工),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2327,國巨,電子零組件(被動元件),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2383,台光電,電子零組件(銅箔基板),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-3037,欣興電子,電子零組件(PCB),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2891,中信金,金融保險,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2881,富邦金,金融保險,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2882,國泰金,金融保險,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2382,廣達,電腦及周邊(伺服器),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2345,智邦,通訊網路設備,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2412,中華電信,電信服務,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-3017,奇鋐,電子零組件(散熱模組),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2886,兆豐金,金融保險,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-6669,緯穎,電腦及周邊(伺服器),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-3231,緯創,電子代工,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2357,華碩,電腦及周邊,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-1216,統一企業,食品,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2884,玉山金,金融保險,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2885,元大金,金融保險,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2301,光寶科,電子零組件,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2356,英業達,電子代工,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2002,中鋼,鋼鐵,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-1301,台塑,塑膠,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-1303,南亞塑膠,塑膠,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-1326,台化,塑膠/紡織纖維,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-1101,台泥,水泥,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-3045,台灣大哥大,電信服務,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-4904,遠傳電信,電信服務,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-3008,大立光,光學元件,blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2379,瑞昱,半導體(IC設計),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-3034,聯詠,半導體(IC設計),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2610,中華航空,航運(航空),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2618,長榮航空,航運(航空),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2603,長榮,航運(海運),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2609,陽明海運,航運(海運),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2615,萬海,航運(海運),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2912,統一超,零售(便利商店),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2449,京元電子,半導體(封測),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2344,華邦電,半導體(記憶體),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2408,南亞科,半導體(記憶體),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2337,旺宏,半導體(記憶體),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2368,金像電,電子零組件(PCB),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2059,川湖,機械(滑軌),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2360,致茂,電子設備(測試儀器),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-2395,研華,電腦及周邊(工業電腦),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
-3661,世芯-KY,半導體(IC設計服務),blocked_missing_benchmark,False,False,False,0,0,26,26,Missing real raw benchmark data: C:\Users\user\Desktop\taiwan-attention-momentum-signal\data\raw\price_TAIEX.csv
+2330,台積電,半導體,accepted,True,True,True,237,237,26,26,
+2454,聯發科,半導體(IC設計),accepted,True,True,True,237,237,26,26,
+2308,台達電,電子零組件(電源供應),accepted,True,True,True,237,237,26,26,
+2317,鴻海,電子代工,accepted,True,True,True,237,237,26,26,
+3711,日月光投控,半導體(封測),accepted,True,True,True,237,237,26,26,
+2303,聯電,半導體(晶圓代工),accepted,True,True,True,237,237,26,26,
+2327,國巨,電子零組件(被動元件),accepted,True,True,True,237,237,26,26,
+2383,台光電,電子零組件(銅箔基板),accepted,True,True,True,237,237,26,26,
+3037,欣興電子,電子零組件(PCB),accepted,True,True,True,237,237,26,26,
+2891,中信金,金融保險,accepted,True,True,True,237,237,26,26,
+2881,富邦金,金融保險,accepted,True,True,True,237,237,26,26,
+2882,國泰金,金融保險,accepted,True,True,True,237,237,26,26,
+2382,廣達,電腦及周邊(伺服器),accepted,True,True,True,237,237,26,26,
+2345,智邦,通訊網路設備,accepted,True,True,True,237,237,26,26,
+2412,中華電信,電信服務,accepted,True,True,True,237,237,26,26,
+3017,奇鋐,電子零組件(散熱模組),accepted,True,True,True,237,237,26,26,
+2886,兆豐金,金融保險,accepted,True,True,True,237,237,26,26,
+6669,緯穎,電腦及周邊(伺服器),accepted,True,True,True,237,237,26,26,
+3231,緯創,電子代工,accepted,True,True,True,237,237,26,26,
+2357,華碩,電腦及周邊,accepted,True,True,True,237,237,26,26,
+1216,統一企業,食品,accepted,True,True,True,237,237,26,26,
+2884,玉山金,金融保險,accepted,True,True,True,237,237,26,26,
+2885,元大金,金融保險,accepted,True,True,True,237,237,26,26,
+2301,光寶科,電子零組件,accepted,True,True,True,237,237,26,26,
+2356,英業達,電子代工,accepted,True,True,True,237,237,26,26,
+2002,中鋼,鋼鐵,accepted,True,True,True,237,237,26,26,
+1301,台塑,塑膠,accepted,True,True,True,237,237,26,26,
+1303,南亞塑膠,塑膠,accepted,True,True,True,237,237,26,26,
+1326,台化,塑膠/紡織纖維,accepted,True,True,True,237,237,26,26,
+1101,台泥,水泥,accepted,True,True,True,237,237,26,26,
+3045,台灣大哥大,電信服務,accepted,True,True,True,237,237,26,26,
+4904,遠傳電信,電信服務,accepted,True,True,True,237,237,26,26,
+3008,大立光,光學元件,accepted,True,True,True,237,237,26,26,
+2379,瑞昱,半導體(IC設計),accepted,True,True,True,237,237,26,26,
+3034,聯詠,半導體(IC設計),accepted,True,True,True,237,237,26,26,
+2610,中華航空,航運(航空),accepted,True,True,True,237,237,26,26,
+2618,長榮航空,航運(航空),accepted,True,True,True,237,237,26,26,
+2603,長榮,航運(海運),accepted,True,True,True,237,237,26,26,
+2609,陽明海運,航運(海運),accepted,True,True,True,237,237,26,26,
+2615,萬海,航運(海運),accepted,True,True,True,237,237,26,26,
+2912,統一超,零售(便利商店),accepted,True,True,True,237,237,26,26,
+2449,京元電子,半導體(封測),accepted,True,True,True,237,237,26,26,
+2344,華邦電,半導體(記憶體),accepted,True,True,True,237,237,26,26,
+2408,南亞科,半導體(記憶體),accepted,True,True,True,237,237,26,26,
+2337,旺宏,半導體(記憶體),accepted,True,True,True,237,237,26,26,
+2368,金像電,電子零組件(PCB),accepted,True,True,True,237,237,26,26,
+2059,川湖,機械(滑軌),accepted,True,True,True,237,237,26,26,
+2360,致茂,電子設備(測試儀器),accepted,True,True,True,237,237,26,26,
+2395,研華,電腦及周邊(工業電腦),accepted,True,True,True,237,237,26,26,
+3661,世芯-KY,半導體(IC設計服務),accepted,True,True,True,237,237,26,26,

@@ -1,5 +1,5 @@
-﻿artifact,path,status
-legacy_v03_panel,data\processed\attention_weekly_panel_v03.csv,missing
-corrected_v03_panel,data\processed\attention_weekly_panel_v03_asof_safe.csv,missing
-legacy_v04_panel,data\processed\attention_weekly_panel_v04.csv,missing
-corrected_v04_panel,data\processed\attention_weekly_panel_v04_asof_safe.csv,missing
+﻿artifact,path,status,n_rows,n_stocks,sample_start,sample_end
+legacy_v03_panel,data\processed\attention_weekly_panel_v03.csv,missing,,,,
+corrected_v03_panel,data\processed\attention_weekly_panel_v03_asof_safe.csv,present,11850.0,50.0,2022-01-09,2026-07-19
+legacy_v04_panel,data\processed\attention_weekly_panel_v04.csv,missing,,,,
+corrected_v04_panel,data\processed\attention_weekly_panel_v04_asof_safe.csv,present,11850.0,50.0,2022-01-09,2026-07-19

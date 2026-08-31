@@ -1,0 +1,4 @@
+﻿event_definition,n_events_raw,n_events_after_nonoverlap_filter,n_unique_stocks,max_events_same_calendar_week,final_window_offset,CAR_definition,CAR_mean_at_final_window,CAR_std,t_stat,p_value,bootstrap_ci_low,bootstrap_ci_high,n_events_used_in_test
+attention_z2,690,388,50,18,8,sum of weekly excess returns from offset +1 through final_window_offset,0.04523467710461054,0.21778049173140837,4.075518653708553,5.581590316071521e-05,0.02407729406899531,0.06808219783380763,385
+attention_ratio,1058,498,49,19,8,sum of weekly excess returns from offset +1 through final_window_offset,0.05359975876175843,0.21181534139267907,5.607201576235262,3.4395072094880145e-08,0.035236941667935444,0.07226716218015473,491
+attention_top_decile,1173,664,50,5,8,sum of weekly excess returns from offset +1 through final_window_offset,0.02727412883843306,0.1807384019460531,3.8384208530110455,0.00013600261312355258,0.013082912312370338,0.04154526303212699,647
