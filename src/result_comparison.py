@@ -64,6 +64,13 @@ GENERATED_ARTIFACTS = {
 
 NON_EVIDENCE_ARTIFACTS = {
     "results/tables/google_trends_test_result_50.csv",
+    # Phase 4 robustness battery: new checks with no legacy/corrected predecessor,
+    # so they don't fit the legacy-vs-corrected inventory below.
+    "results/tables/robustness_placebo_lead_test.csv",
+    "results/tables/robustness_subperiod_stability.csv",
+    "results/tables/robustness_winsorize_sensitivity.csv",
+    "results/tables/robustness_rolling_window_4w.csv",
+    "results/figures/robustness_rolling_window_4w.png",
 }
 
 LEGACY_EVIDENCE = [
