@@ -67,6 +67,10 @@ NON_EVIDENCE_ARTIFACTS = {
     # Phase 4 robustness battery: new checks with no legacy/corrected predecessor,
     # so they don't fit the legacy-vs-corrected inventory below.
     "results/tables/robustness_placebo_lead_test.csv",
+    # 2026-09-07: corrected version of the placebo test above -- compares attention_z(t)
+    # against a return window with zero calendar overlap with attention_z's own SVI
+    # observation window (the original placebo test's window overlapped by ~6 of 7 days).
+    "results/tables/robustness_corrected_placebo_lead_test.csv",
     "results/tables/robustness_subperiod_stability.csv",
     "results/tables/robustness_winsorize_sensitivity.csv",
     "results/tables/robustness_rolling_window_4w.csv",

@@ -1,0 +1,2 @@
+﻿test,IC_mean,IC_std,t_stat,p_value,n_weeks,interpretation
+corrected_placebo (attention_z[t] vs return strictly before observation_period_start[t]),0.09929264824499907,0.19794084928774747,7.722463026110756,3.2350356669169824e-13,237,"should be ~0/non-significant; unlike the original placebo_lead_test, this comparison window has zero calendar overlap with attention_z's own SVI observation window"

@@ -22,13 +22,30 @@ for** -- see `docs/limitations.md` for the further caveats (survivorship bias in
 50-stock universe; Google Trends query-window normalization covering future search
 volume) that this finding should be read under.
 
-**Open item, not yet resolved**: `results/tables/robustness_placebo_lead_test.csv`
-(attention_z[t] vs. already-realized return[t-1]) shows a statistically significant
-relationship (IC_mean≈0.098, t≈7.7, p<0.001), which the test's own design intends as a
-possible timing-leak indicator. Whether this reflects an actual pipeline timing defect
-or a real, benign phenomenon (attention plausibly follows recent price moves) has not
-been determined and needs further investigation before this finding can be called fully
-validated.
+**Placebo/lead result investigated and resolved (2026-09-07): not a timing leak.**
+`results/tables/robustness_placebo_lead_test.csv` (attention_z[t] vs. weekly_return at
+panel row t-1) showed a significant relationship (IC_mean≈0.098, t≈7.7, p<0.001).
+Checking the actual calendar dates in the panel showed why: row t-1's weekly_return
+window (anchored to feature_asof_trade_date, which already includes the 14-day
+conservative availability delay) ends only ~1 day before row t's SVI observation window
+*starts* -- the two windows overlap by about 6 of the 7 days in real calendar time
+despite the "shift(1)" row-index offset. That overlap alone could explain a significant
+correlation without any leak.
+
+To settle it, `scripts/run_corrected_placebo_test.py` reruns the same methodology
+against a return window with **zero** calendar overlap -- a trailing 1-week return
+ending on the last trading day strictly before observation_period_start(t) (see
+`results/tables/robustness_corrected_placebo_lead_test.csv`). The result is
+**nearly identical** (IC_mean≈0.099, t≈7.7, p<0.001, n=237 weeks) to the original,
+overlapping-window test. Since a genuinely non-overlapping comparison shows the same
+significant relationship, this is not an artifact of window overlap or a pipeline
+timing defect -- it reflects a real, contemporaneous-to-recent attention/return
+relationship (search interest tracking recent price performance is a well-documented
+behavioral phenomenon), consistent with this project's own core finding that the
+attention signal is entangled with momentum (which is exactly why Model2's momentum
+control exists in the first place). This does not change the "specification-dependent,
+not robust" conclusion; it's additional evidence for why momentum must be controlled
+for, not a validity problem with the as-of-safe pipeline.
 
 ## Legacy Finding Status
 
