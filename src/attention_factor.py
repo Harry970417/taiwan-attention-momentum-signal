@@ -30,6 +30,7 @@ from trends_collector import (
     manifest_matches_request as trends_manifest_matches_request,
     request_config_sha256 as trends_request_config_sha256,
 )
+from price_adjustment import build_adjusted_close
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG_CSV = ROOT / "config" / "stock_list_50.csv"
@@ -126,6 +127,31 @@ def load_price(stock_id: str, taiex_ret: pd.Series):
     if not path.exists():
         return None
     df = pd.read_csv(path, parse_dates=["date"]).sort_values("date").set_index("date")
+
+    # Phase 1 A-G audit Finding A-1: raw (unadjusted) close prices produce a mechanical
+    # negative return on every ex-dividend date, polluting weekly_return/past_Nw_return/
+    # future_Nw_excess_return (the Fama-MacBeth regression's own dependent variable).
+    # FinMind's TaiwanStockPriceAdj requires a paid tier; TaiwanStockDividendResult
+    # (free tier) gives before_price/after_price, from which a standard backward
+    # adjustment is built. Missing dividend_result file (or genuinely no dividend
+    # history) means the series is returned unchanged, matching build_adjusted_close's
+    # own no-op-on-no-events behavior.
+    df["close_raw"] = df["close"]
+    dividend_path = RAW_DIR / f"dividend_result_{stock_id}.csv"
+    if dividend_path.exists():
+        try:
+            dividends = pd.read_csv(dividend_path)
+        except pd.errors.EmptyDataError:
+            # fetch_dividend_result() writes an empty file for a stock with no
+            # dividend history in the sample window -- a legitimate "no events" case.
+            dividends = pd.DataFrame(columns=["date", "before_price", "after_price"])
+        if "date" in dividends.columns and not dividends.empty:
+            dividends["date"] = pd.to_datetime(dividends["date"])
+            dividends = dividends.dropna(subset=["date", "before_price", "after_price"])
+        else:
+            dividends = pd.DataFrame(columns=["date", "before_price", "after_price"])
+        df["close"] = build_adjusted_close(df, dividends)
+
     df["ret"] = df["close"].pct_change()
 
     df["vol_ma20"] = df["Trading_Volume"].rolling(20, min_periods=10).mean()

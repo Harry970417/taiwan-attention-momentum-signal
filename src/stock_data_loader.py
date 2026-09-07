@@ -45,6 +45,28 @@ def fetch_price(stock_id: str):
         return False, 0, "", "", f"{type(e).__name__}: {e}"
 
 
+def fetch_dividend_result(stock_id: str):
+    """TaiwanStockDividendResult: TWSE's own before_price/after_price reference prices
+    at each ex-dividend date. Free-tier accessible (unlike TaiwanStockPriceAdj, which
+    requires a paid FinMind tier -- verified 2026-09-07). Feeds
+    price_adjustment.build_adjusted_close() (Phase 1 A-G audit Finding A-1)."""
+    out_path = RAW_DIR / f"dividend_result_{stock_id}.csv"
+    if out_path.exists():
+        return True, ""
+    try:
+        payload = fetch_dataset("TaiwanStockDividendResult", stock_id)
+        if payload.get("status") != 200:
+            return False, f"API status {payload.get('status')}: {payload.get('msg')}"
+        data = payload.get("data", [])
+        # A stock with no dividend history in the sample window is a legitimate empty
+        # result, not a fetch failure -- still write the (empty) file so main()'s resume
+        # check doesn't re-fetch it every run.
+        pd.DataFrame(data).to_csv(out_path, index=False, encoding="utf-8-sig")
+        return True, ""
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}"
+
+
 def fetch_institutional(stock_id: str):
     out_path = RAW_DIR / f"inst_{stock_id}.csv"
     breakdown_path = RAW_DIR / f"inst_breakdown_{stock_id}.csv"
@@ -80,13 +102,15 @@ def main():
         sid, sname = str(r["stock_id"]), r["stock_name"]
         p_ok, p_rows, p_start, p_end, p_err = fetch_price(sid)
         i_ok, i_err = fetch_institutional(sid)
+        d_ok, d_err = fetch_dividend_result(sid)
         rows.append({
             "stock_id": sid, "stock_name": sname,
             "price_success": p_ok, "price_rows": p_rows,
             "price_start": p_start, "price_end": p_end, "price_error": p_err,
             "inst_success": i_ok, "inst_error": i_err,
+            "dividend_result_success": d_ok, "dividend_result_error": d_err,
         })
-        print(f"{sid} {sname}: price_ok={p_ok} ({p_rows} rows) inst_ok={i_ok} {p_err}{i_err}")
+        print(f"{sid} {sname}: price_ok={p_ok} ({p_rows} rows) inst_ok={i_ok} dividend_ok={d_ok} {p_err}{i_err}{d_err}")
         time.sleep(1.5)
 
     pd.DataFrame(rows).to_csv(RAW_DIR / "finmind_fetch_summary_50.csv", index=False, encoding="utf-8-sig")

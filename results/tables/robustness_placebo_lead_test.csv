@@ -1,2 +1,2 @@
 ﻿test,IC_mean,IC_std,t_stat,p_value,n_weeks,interpretation
-placebo_lead (attention_z[t] vs already-realized return[t-1]),0.09300397097996992,0.19304008533055506,7.401333821464254,2.385684010523101e-12,236,should be ~0/non-significant; significant result would indicate a timing leak in the as-of-safe pipeline
+placebo_lead (attention_z[t] vs already-realized return[t-1]),0.09753507322305849,0.19406426221192258,7.7209590721781245,3.305899851006367e-13,236,should be ~0/non-significant; significant result would indicate a timing leak in the as-of-safe pipeline
