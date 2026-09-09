@@ -1,7 +1,8 @@
 # Research Findings
 
-Status date: 2026-09-07 (previously 2026-08-02; corrected results below regenerated during
-the Phase 1 A-G audit's Finding A-1 fix -- see docs/limitations.md)
+Status date: 2026-09-09 (previously 2026-08-02, then 2026-09-07; corrected results below
+regenerated twice during the Phase 1 A-G audit -- Finding A-1's price adjustment, then
+the Newey-West HAC migration below -- see docs/limitations.md)
 
 ## Corrected Finding
 
@@ -9,15 +10,28 @@ Corrected empirical results are now available (`results/tables/*_asof_safe.csv`,
 listed under "Required Evidence" below now exist and are compared in
 `asof_safe_legacy_comparison.csv`). Regenerated 2026-09-07 using backward-adjusted close
 prices (see `src/price_adjustment.py`) to correct a mechanical negative-return artifact
-on ex-dividend dates found in the earlier raw-price version.
+on ex-dividend dates found in the earlier raw-price version, then regenerated again
+2026-09-09 after migrating `momentum_control.fm_aggregate`, `regression_analysis.
+fm_aggregate`, and `momentum_control.factor_ic_summary` off their naive (non-HAC)
+significance tests onto `quant_formulas` (`Desktop/quant-system-core`'s canonical
+Newey-West HAC implementation) -- closing this repo's own Finding C-2/P1-19 (zero
+Newey-West/HAC implementation anywhere, despite the 1/2/4-week overlapping forward-return
+windows this project's own design uses inducing serial correlation).
 
-Summary (Fama-MacBeth, `future_4w_excess_return`): Model1 (attention only, no controls)
-is significant (t=4.17, p<0.0001); adding momentum controls (Model2) removes
-significance (t=1.19, p=0.24); Model5 (pooled two-way FE) is significant at the 4-week
-horizon only. This is the same significance pattern the pre-fix raw-price numbers
-showed -- the price-adjustment correction does not overturn the core conclusion, it only
-corrects the return calculation methodology. The core conclusion remains: **the
-attention effect is specification-dependent and not robust once momentum is controlled
+Summary (Fama-MacBeth, `future_4w_excess_return`, HAC-corrected): Model1 (attention only,
+no controls) is still significant but visibly weaker (t=2.43, p=0.016, vs. the pre-HAC
+t=4.17, p<0.0001); Model1 at the 1-week horizon is **no longer significant at
+conventional levels** post-HAC (t=1.91, p=0.057, vs. pre-HAC p=0.031); adding momentum
+controls (Model2) still removes significance entirely (t=0.79, p=0.43); Model5 (pooled
+two-way FE, which already used cluster-robust SEs and was unaffected by this migration)
+remains significant at the 4-week horizon only. After Holm-Bonferroni/BH-FDR correction
+across all tests, only 5 of 30 (down from 6) remain significant at alpha=0.10, and
+Model1's 2-week-horizon result drops out of that list entirely. This HAC correction makes
+the already-cautious "specification-dependent, not robust" conclusion **more conservative
+across the board, never less** -- it does not overturn anything, it removes several
+findings that were only ever marginally significant under the (incorrect) naive test. The
+core conclusion remains: **the attention effect is specification-dependent and not robust
+once momentum is controlled
 for** -- see `docs/limitations.md` for the further caveats (survivorship bias in the
 50-stock universe; Google Trends query-window normalization covering future search
 volume) that this finding should be read under.

@@ -79,15 +79,20 @@ def fm_weekly(panel: pd.DataFrame, horizon: str, terms: list):
 
 
 def fm_aggregate(coefs: pd.DataFrame, colname: str):
+    """2026-09-09: migrated to quant_formulas' Newey-West HAC standard error
+    (Desktop/quant-system-core), same fix and same reason as
+    momentum_control.fm_aggregate -- see that function's docstring."""
+    from quant_formulas.factor_stats import newey_west_se, t_stat_and_pvalue
+
     if coefs.empty or colname not in coefs.columns:
         return {"coefficient": None, "t_stat": None, "p_value": None, "n_weeks": 0, "significant": False}
     c = coefs[colname].dropna()
     n = len(c)
     if n < 2:
         return {"coefficient": None, "t_stat": None, "p_value": None, "n_weeks": n, "significant": False}
-    mean, std = c.mean(), c.std()
-    t_stat = mean / (std / np.sqrt(n)) if std else None
-    p_value = 2 * (1 - stats.t.cdf(abs(t_stat), df=n - 1)) if t_stat is not None else None
+    mean = c.mean()
+    se = newey_west_se(c)
+    t_stat, p_value = t_stat_and_pvalue(mean, se, df=n - 1) if se > 0 else (None, None)
     return {"coefficient": mean, "t_stat": t_stat, "p_value": p_value, "n_weeks": n,
             "significant": bool(p_value is not None and p_value < 0.05)}
 

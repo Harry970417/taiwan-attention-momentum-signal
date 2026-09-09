@@ -74,16 +74,28 @@ def fm_weekly_coefs(panel: pd.DataFrame, horizon: str, continuous: list[str], us
 
 
 def fm_aggregate(coefs: pd.DataFrame, model_name: str, horizon: str):
+    """Aggregates a Fama-MacBeth per-week coefficient series into a mean
+    coefficient and significance test. 2026-09-09: migrated to
+    quant_formulas' Newey-West HAC standard error (Desktop/quant-system-core)
+    instead of the naive std/sqrt(n) formula -- the 1/2/4-week overlapping
+    forward-return windows induce serial correlation in this coefficient
+    series (Phase 1 A-G audit finding C-2/P1-19), which the naive formula
+    does not account for."""
+    from quant_formulas.factor_stats import newey_west_se, t_stat_and_pvalue
+
     if coefs.empty:
         return {"model": model_name, "horizon": horizon, "coefficient": None, "t_stat": None,
                 "p_value": None, "n_weeks": 0, "avg_r2": None, "significant": False}
     c = coefs["coef"].dropna()
     n = len(c)
-    mean, std = c.mean(), c.std()
-    t_stat = mean / (std / np.sqrt(n)) if std and n > 1 else None
-    p_value = 2 * (1 - stats.t.cdf(abs(t_stat), df=n - 1)) if t_stat is not None else None
+    mean = c.mean()
+    if n > 1:
+        se = newey_west_se(c)
+        t_stat, p_value = t_stat_and_pvalue(mean, se, df=n - 1) if se > 0 else (None, None)
+    else:
+        t_stat, p_value = None, None
     return {
-        "model": model_name, "horizon": horizon, "coefficient": mean, "std_dev": std,
+        "model": model_name, "horizon": horizon, "coefficient": mean, "std_dev": c.std(),
         "t_stat": t_stat, "p_value": p_value, "n_weeks": n,
         "avg_r2": coefs["r2"].mean(), "significant": bool(p_value is not None and p_value < 0.05),
     }
@@ -140,6 +152,14 @@ def build_residual_panel(panel: pd.DataFrame) -> pd.DataFrame:
 
 
 def factor_ic_summary(panel: pd.DataFrame, factor: str) -> pd.DataFrame:
+    """2026-09-09: significance test migrated to quant_formulas' Newey-West
+    HAC standard error (Desktop/quant-system-core), replacing plain
+    scipy.stats.ttest_1samp -- same class of fix as fm_aggregate above, for
+    the same reason (overlapping forward-return windows induce serial
+    correlation in the weekly IC series). Column names/shape unchanged so
+    the existing CSV output contract is preserved."""
+    from quant_formulas.factor_stats import newey_west_se, t_stat_and_pvalue
+
     rows = []
     for horizon in HORIZONS:
         ics = []
@@ -152,7 +172,8 @@ def factor_ic_summary(panel: pd.DataFrame, factor: str) -> pd.DataFrame:
                 ics.append(ic)
         s = pd.Series(ics, dtype=float)
         if len(s) > 1:
-            t_stat, p_value = stats.ttest_1samp(s, 0)
+            se = newey_west_se(s)
+            t_stat, p_value = t_stat_and_pvalue(s.mean(), se, df=len(s) - 1) if se > 0 else (None, None)
             rows.append({
                 "IC_mean": s.mean(),
                 "IC_std": s.std(),
