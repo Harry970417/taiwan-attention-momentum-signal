@@ -56,6 +56,34 @@ Google Trends SVI is normalized, sampled, and indexed. Cross-request values are 
 common-scale volumes. The project uses self-normalized `attention_z` and
 `attention_shock`, but Trends sampling noise and low-volume zeros remain limitations.
 
+## `attention_z` Is a Within-Stock Score, Not a Cross-Stock Ranking
+
+`attention_z = (SVI - SVI_MA52) / SVI_STD52` is a **within-stock, trailing-52-week
+time-series z-score** -- it measures how unusual this week's search interest is relative
+to *that same stock's own* recent history, not how this stock's attention compares to the
+other 49 stocks in the panel this week. All Model1-5 Fama-MacBeth/panel regressions use
+this within-stock score as the independent variable, not a raw SVI level or a weekly
+cross-sectional rank. The weekly cross-sectional comparison in those regressions is
+therefore over *each stock's own-history abnormal-attention score*, not over each stock's
+absolute attention level -- consistent with the Da/Engelberg/Gao (2011)-style Abnormal
+Search Volume Index convention in the literature, not a project-specific design choice.
+This distinction matters for interpreting the coefficient: a positive `attention_z`
+coefficient means "weeks where a stock is unusually attention-grabbing *relative to its
+own history* tend to have higher forward returns," not "the most-searched stock in a
+given week tends to have higher forward returns."
+
+## Momentum Control Covers Only 1-Month and 3-Month Windows
+
+The momentum control variables used in Model2-5 are `past_4w_return` (~1 month) and
+`past_12w_return` (~3 months) only. The panel also computes `past_{1,8,26}w_return`, but
+these are not wired into any regression. This project does **not** control for
+Jegadeesh-Titman canonical 12-1 momentum, short-term (1-week) reversal, or
+market-adjusted momentum (the momentum controls are individual-stock raw returns, not
+returns net of the market). The finding that "the attention effect is specification-
+dependent and largely disappears once momentum is controlled for" holds only under these
+two specific window definitions and should not be read as ruling out momentum under a
+broader set of specifications.
+
 ## Data Scope
 
 The intended universe is 50 Taiwan large-cap stocks. Results should not be extrapolated to

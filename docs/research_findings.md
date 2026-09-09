@@ -24,7 +24,11 @@ t=4.17, p<0.0001); Model1 at the 1-week horizon is **no longer significant at
 conventional levels** post-HAC (t=1.91, p=0.057, vs. pre-HAC p=0.031); adding momentum
 controls (Model2) still removes significance entirely (t=0.79, p=0.43); Model5 (pooled
 two-way FE, which already used cluster-robust SEs and was unaffected by this migration)
-remains significant at the 4-week horizon only. After Holm-Bonferroni/BH-FDR correction
+remains significant at the 4-week horizon only. **Model1-4's t-statistics come from the
+Fama-MacBeth time-series test (now HAC-corrected); Model5's t-statistic comes from a
+week-clustered robust standard error in a single pooled panel regression -- these are two
+different covariance estimators and are not directly comparable in significance strength
+against each other, despite appearing in the same summary table.** After Holm-Bonferroni/BH-FDR correction
 across all tests, only 5 of 30 (down from 6) remain significant at alpha=0.10, and
 Model1's 2-week-horizon result drops out of that list entirely. This HAC correction makes
 the already-cautious "specification-dependent, not robust" conclusion **more conservative
