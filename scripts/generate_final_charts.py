@@ -43,34 +43,71 @@ ax.set_ylabel("交互作用係數 (attention_z × 過去4週報酬)")
 ax.set_title("TAS：注意力×動能交互作用係數與95%信賴區間\n(正式檢定不支持「放大器」機制——區間皆涵蓋0)")
 fig.tight_layout(); fig.savefig(f"{OUT}/tas_interaction_coefficient_ci.png", dpi=300); plt.close(fig)
 
-# 3. Model1-5 coefficient plot with FDR significance markers
+# 3. Model1-5 coefficient plot with FDR significance markers.
+# ponytail: single vertical forest-plot (15 rows: 5 models x 3 horizons) with
+# 95% CI error bars, not 3 side-by-side subplots -- the 3-subplot layout
+# forced 8pt tick labels and made it hard to see at a glance that M2-M4
+# mostly lose significance once momentum is controlled for. This must stay
+# a single authoritative plot so "which rows are still significant after
+# FDR" reads in one glance, not spread across 3 small panels.
 fdr = pd.read_csv(f"{ROOT}/fdr_correction_all_tests_asof_safe.csv")
 fm = pd.read_csv(f"{ROOT}/v03_fama_macbeth_summary_asof_safe.csv")
 fm_fdr = fdr[fdr["family"] == "fama_macbeth"]
 fm = fm.merge(fm_fdr[["test", "horizon", "significant_fdr_010", "p_value_fdr"]], left_on=["model", "horizon"], right_on=["test", "horizon"])
 model_order = ["Model1_attention_only", "Model2_plus_momentum", "Model3_plus_volume_vol", "Model4_plus_liquidity_industry_FE", "Model5_pooled_2wayFE_cluster_by_week"]
-model_short = {"Model1_attention_only": "M1\n純注意力", "Model2_plus_momentum": "M2\n+動能", "Model3_plus_volume_vol": "M3\n+量能波動", "Model4_plus_liquidity_industry_FE": "M4\n+流動性/產業FE", "Model5_pooled_2wayFE_cluster_by_week": "M5\n二維FE"}
-fig, axes = plt.subplots(1, 3, figsize=(15, 5.5), sharey=True)
-for ax, hz, hzlabel in zip(axes, ["future_1w_excess_return", "future_2w_excess_return", "future_4w_excess_return"], ["1週", "2週", "4週"]):
-    sub = fm[fm["horizon"] == hz].set_index("model").reindex(model_order)
-    colors = ["#27ae60" if s else "#95a5a6" for s in sub["significant_fdr_010"]]
-    ax.bar([model_short[m] for m in model_order], sub["coefficient"], color=colors)
-    ax.axhline(0, color="black", linewidth=0.8)
-    ax.set_title(f"{hzlabel}期報酬")
-    ax.tick_params(axis="x", labelsize=8)
-axes[0].set_ylabel("係數")
-fig.suptitle("TAS：Fama-MacBeth Model1-5 係數（綠色＝FDR校正後仍顯著，灰色＝不顯著）")
+model_short = {"Model1_attention_only": "M1 純注意力", "Model2_plus_momentum": "M2 +動能", "Model3_plus_volume_vol": "M3 +量能波動", "Model4_plus_liquidity_industry_FE": "M4 +流動性/產業FE", "Model5_pooled_2wayFE_cluster_by_week": "M5 二維FE"}
+horizon_order = ["future_1w_excess_return", "future_2w_excess_return", "future_4w_excess_return"]
+horizon_label = {"future_1w_excess_return": "1週", "future_2w_excess_return": "2週", "future_4w_excess_return": "4週"}
+fm["se"] = fm["coefficient"].abs() / fm["t_stat"].abs()
+fm["ci95"] = 1.96 * fm["se"]
+rows = [(m, h) for m in model_order for h in horizon_order]
+fm_idx = fm.set_index(["model", "horizon"])
+labels = [f"{model_short[m]} | {horizon_label[h]}" for m, h in rows]
+coefs = [fm_idx.loc[(m, h), "coefficient"] for m, h in rows]
+cis = [fm_idx.loc[(m, h), "ci95"] for m, h in rows]
+sig = [bool(fm_idx.loc[(m, h), "significant_fdr_010"]) for m, h in rows]
+colors = ["#2e7d32" if s else "#9e9e9e" for s in sig]
+y = np.arange(len(rows))[::-1]  # top row = first entry
+fig, ax = plt.subplots(figsize=(13, 9))
+for i, (yi, col) in enumerate(zip(y, colors)):
+    ax.errorbar([coefs[i]], [yi], xerr=[cis[i]], fmt="o", capsize=5, markersize=9,
+                elinewidth=2, ecolor=col, mfc=col, mec=col)
+ax.axvline(0, color="black", linewidth=1)
+ax.set_yticks(y); ax.set_yticklabels(labels, fontsize=11)
+ax.set_xlabel("迴歸係數（95% 信賴區間）", fontsize=12)
+ax.tick_params(axis="x", labelsize=11)
+ax.set_title("TAS：M1–M4 Fama-MacBeth／M5 Two-way FE 全部15組係數與95% CI\n（綠色＝FDR校正後仍顯著，灰色＝不顯著；M1-4與M5非同一covariance estimator，見文字說明）", fontsize=14)
 fig.tight_layout(); fig.savefig(f"{OUT}/tas_model1to5_coefficients_fdr.png", dpi=300); plt.close(fig)
 
+# 3b. Legacy vs corrected t-statistic comparison (event study, 3 attention
+# definitions) -- previously generated ad hoc, never saved to a tracked
+# script (Codex/visual-QA gap). Recreate from the same comparison table used
+# by chart 1 above so it has an authoritative, reproducible source.
+tstat = cmp[(cmp["comparison"] == "event_study_caar") & (cmp["metric"] == "t_stat")]
+t_labels = tstat["event_definition"].tolist()
+t_legacy = tstat["legacy_value"].astype(float)
+t_corrected = tstat["corrected_value"].astype(float)
+xt = np.arange(len(t_labels)); wt = 0.35
+fig, ax = plt.subplots(figsize=(9, 6.5))
+ax.bar(xt - wt/2, t_legacy, wt, label="修正前 (Legacy)", color="#c0392b")
+ax.bar(xt + wt/2, t_corrected, wt, label="修正後 (Corrected)", color="#2980b9")
+ax.axhline(1.96, color="gray", linestyle="--", linewidth=1.3, label="5% 顯著門檻 (t=1.96)")
+ax.set_xticks(xt); ax.set_xticklabels(t_labels, fontsize=11)
+ax.set_ylabel("t 統計量", fontsize=12)
+ax.tick_params(axis="y", labelsize=11)
+ax.set_title("TAS：Look-ahead Bias 修正前後事件研究 t 統計量對照", fontsize=15)
+ax.legend(fontsize=10.5)
+fig.tight_layout(); fig.savefig(f"{OUT}/tas_legacy_vs_corrected_tstat.png", dpi=300); plt.close(fig)
+
 # 4. Double-sort heatmap (4w)
-ds = pd.read_csv(f"{ROOT}/v03_double_sort_past4w_attention_asof_safe.csv")
-ds.columns = [c.strip() for c in ds.columns]
-pivot = ds.pivot(index="mom_bucket", columns="att_bucket", values="future_4w_excess_return_mean") if "future_4w_excess_return_mean" in ds.columns else None
-if pivot is None:
-    # fallback: try to locate the right columns generically
-    val_col = [c for c in ds.columns if "4w" in c and "mean" in c]
-    if val_col:
-        pivot = ds.pivot(index="mom_bucket", columns="att_bucket", values=val_col[0])
+# ponytail: source CSV has a 3-row multi-index header (metric name row,
+# mean/count row, mom_bucket/att_bucket label row) that pd.read_csv's default
+# single-header read mangles into "Unnamed: 0"-style columns, so mom_bucket/
+# att_bucket never matched and this chart silently never wrote its PNG.
+ds = pd.read_csv(f"{ROOT}/v03_double_sort_past4w_attention_asof_safe.csv", header=None, skiprows=3)
+ds.columns = ["mom_bucket", "att_bucket", "f1w_mean", "f1w_count", "f2w_mean", "f2w_count",
+              "future_4w_excess_return_mean", "f4w_count"]
+pivot = ds.pivot(index="mom_bucket", columns="att_bucket", values="future_4w_excess_return_mean")
 if pivot is not None:
     order_mom = [m for m in ["loser", "neutral", "winner"] if m in pivot.index]
     order_att = [a for a in ["low_attention", "mid_attention", "high_attention"] if a in pivot.columns]
