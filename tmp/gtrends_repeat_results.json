@@ -1,17 +1,21 @@
 {
   "2330": {
-    "errors": [
-      "repeat0: TooManyRequestsError: The request failed: Google returned a response with code 429"
-    ],
-    "n_success": 2,
+    "errors": [],
+    "n_success": 3,
     "n_weeks_aligned": 53,
     "pairwise_pearson_corr": [
+      1.0,
+      1.0,
       1.0
     ],
     "pairwise_mean_abs_diff": [
+      0.0,
+      0.0,
       0.0
     ],
     "pairwise_rank_spearman": [
+      1.0,
+      1.0,
       1.0
     ]
   },
