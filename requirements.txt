@@ -6,13 +6,13 @@ requests>=2.31
 scipy>=1.11
 statsmodels>=0.14
 streamlit>=1.38
-# 2026-09-09: momentum_control.py / regression_analysis.py's Fama-MacBeth
-# significance tests use quant_formulas.factor_stats (Newey-West HAC),
-# from the sibling repo at Desktop/quant-system-core -- not on PyPI. Install
-# with: pip install -e ../quant-system-core (or wherever that repo is
-# checked out on your machine).
 # NOTE: the FinMind pip package is intentionally NOT used -- it pins
 # lxml<5.0.0, which has no prebuilt wheel for recent Python versions on
 # Windows and fails to build without MSVC Build Tools. All FinMind data is
 # fetched via its public REST API directly with `requests`
 # (see src/stock_data_loader.py).
+# quant_formulas: shared formula library (github.com/Harry970417/quant-system-core).
+# Pinned to a commit archive so deploys (Railway/Streamlit, no git in image) are
+# reproducible. Bump the hash when quant-system-core changes. Local dev may
+# instead use: pip install -e ../quant-system-core
+quant-formulas @ https://github.com/Harry970417/quant-system-core/archive/721b9095e965805d48c9d9ac49a2b7d1e736fa15.zip
