@@ -20,6 +20,7 @@ from asof_contract import (
     last_at_or_before,
     last_before,
     normalize_date,
+    skip_window_return,
     trailing_window_return,
 )
 from trends_collector import (
@@ -264,6 +265,10 @@ def build_for_stock(stock_id, stock_name, industry, price, taiex, svi):
 
         for n in PAST_WINDOWS:
             rec[f"past_{n}w_return"] = _r(trailing_window_return(price["close"], feature_asof, n))
+        # Canonical 12-1 month momentum proxy (skips the most recent ~4 weeks
+        # to avoid short-term reversal contamination); not part of the
+        # M1-M5 default control set, only used in the momentum robustness table.
+        rec["past_52w_skip4w_return"] = _r(skip_window_return(price["close"], feature_asof, 52, 4))
 
         for n in FORWARD_WINDOWS:
             s_end, s_fwd = forward_window(price["close"], first_tradeable, n)

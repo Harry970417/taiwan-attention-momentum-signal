@@ -48,7 +48,46 @@ Fama-MacBeth regressions, residual attention, double sort, institutional-flow co
 and triple sort all load as-of-safe panels and run no-look-ahead assertions before
 analysis.
 
-## 6. Result Provenance
+## 6. Event-Study Inference (updated 2026-09-13)
+
+Two statistics are computed for each of the 3 CAAR event definitions: a naive per-event
+t-test (kept for transparency) and an authoritative date-clustered Newey-West HAC t-test,
+which averages same-signal-week events into one weekly portfolio observation before
+running NW-HAC across the resulting weekly series. Only the date-clustered HAC p-value
+feeds FDR correction. See `docs/limitations.md` for the full rationale.
+
+## 7. Canonical Momentum Robustness (added 2026-09-13)
+
+`momentum_control.canonical_momentum_robustness()` re-estimates the univariate
+attention_z Fama-MacBeth coefficient against five pre-registered momentum/reversal
+controls, one at a time: 1-month, 3-month, 6-month, 12-1 month (skip-4-week), and 1-week
+reversal. All five are reported regardless of outcome. This is separate from, and does
+not change, the M1-M5 headline models (which still only control for 1-month + 3-month
+jointly).
+
+## 8. Institutional Flow Scaling (added 2026-09-13)
+
+The institutional-flow control is available in three scalings: raw net shares, an
+approximate NTD-value flow (net shares x that week's close price), and net shares /
+trading volume (the pre-existing ratio). `regression_analysis.py` reports the
+attention_z coefficient under all three side by side. No market-cap scaling is
+implemented (data unavailable; see `docs/limitations.md`).
+
+## 9. M1-M5 Estimator Naming
+
+M1-M4: Fama-MacBeth (per-week cross-sectional OLS, aggregated across weeks) with a
+Newey-West HAC standard error on the coefficient time series. M5: pooled two-way
+(stock + week) fixed-effects panel regression with standard errors clustered by week --
+a distinct estimator, never described as "HAC" in prose or tables.
+
+## 10. Multiple Testing
+
+All 30 tests (3 event-study + 15 regression + 12 interaction) are corrected together as
+one family with BH-FDR, reported at both q=0.10 and q=0.05. See
+`MULTIPLE_TESTING_FAMILY_CONTRACT.md` for the authoritative definition and the rationale
+for pooling rather than splitting by test type.
+
+## 11. Result Provenance
 
 Corrected outputs use `_asof_safe` suffixes and do not overwrite legacy results. Legacy
 results are marked in `results/tables/legacy_results_provenance.csv`, and common-key

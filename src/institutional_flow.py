@@ -7,6 +7,18 @@ kept the "_value_" name for spec compatibility but documented here and in
 the README. Ratio columns divide net shares by total traded shares over the
 same window, giving a unit-free "% of volume" flow measure.
 
+Additional scaling (2026-09-13, graduate-level upgrade): "*_net_buy_ntd_value_*"
+columns approximate NTD monetary flow as net_shares * that week's feature-as-of
+close price -- an approximation (real fills happen at intraday prices across the
+window, not one closing price), but a materially better monetary proxy than raw
+share counts, which are not comparable across stocks of very different price
+levels. Market-cap-scaled flow (net_buy_value / market_cap) is NOT implemented:
+no reliable market-cap or shares-outstanding series is available from the
+FinMind free tier used by this project, and fabricating one from price alone
+would silently misstate float. This is a disclosed measurement limitation, not
+an oversight -- see README "Institutional flow scaling" section. The
+volume-scaled ratio columns remain the primary, always-available scaling.
+
 dealer = Dealer_self + Dealer_Hedging + Foreign_Dealer_Self (the last is
 consistently ~0 in the data but included for completeness).
 """
@@ -97,23 +109,31 @@ def main():
                 continue
             row = feats.loc[d]
             vol1w, vol4w = row["volume_1w"], row["volume_4w"]
+            px_date = nearest_at_or_before(price.index, feature_date)
+            close_px = price.loc[px_date, "close"] if px_date is not None else None
+            def ntd(shares):
+                return shares * close_px if (close_px is not None and pd.notna(close_px)) else None
             rec = {"stock_id": sid, "week": wk,
                    "foreign_net_buy_value_1w": row["foreign_net_1w"],
                    "foreign_net_buy_value_4w": row["foreign_net_4w"],
                    "foreign_net_buy_ratio_1w": row["foreign_net_1w"] / vol1w if vol1w else None,
                    "foreign_net_buy_ratio_4w": row["foreign_net_4w"] / vol4w if vol4w else None,
+                   "foreign_net_buy_ntd_value_4w": ntd(row["foreign_net_4w"]),
                    "trust_net_buy_value_1w": row["trust_net_1w"],
                    "trust_net_buy_value_4w": row["trust_net_4w"],
                    "trust_net_buy_ratio_1w": row["trust_net_1w"] / vol1w if vol1w else None,
                    "trust_net_buy_ratio_4w": row["trust_net_4w"] / vol4w if vol4w else None,
+                   "trust_net_buy_ntd_value_4w": ntd(row["trust_net_4w"]),
                    "dealer_net_buy_value_1w": row["dealer_net_1w"],
                    "dealer_net_buy_value_4w": row["dealer_net_4w"],
                    "dealer_net_buy_ratio_1w": row["dealer_net_1w"] / vol1w if vol1w else None,
                    "dealer_net_buy_ratio_4w": row["dealer_net_4w"] / vol4w if vol4w else None,
+                   "dealer_net_buy_ntd_value_4w": ntd(row["dealer_net_4w"]),
                    "total_inst_net_buy_value_1w": row["total_net_1w"],
                    "total_inst_net_buy_value_4w": row["total_net_4w"],
                    "total_inst_net_buy_ratio_1w": row["total_net_1w"] / vol1w if vol1w else None,
-                   "total_inst_net_buy_ratio_4w": row["total_net_4w"] / vol4w if vol4w else None}
+                   "total_inst_net_buy_ratio_4w": row["total_net_4w"] / vol4w if vol4w else None,
+                   "total_inst_net_buy_ntd_value_4w": ntd(row["total_net_4w"])}
             chip_rows.append(rec)
             if pd.notna(rec["total_inst_net_buy_ratio_4w"]):
                 n_usable += 1
@@ -150,6 +170,8 @@ def main():
         "dealer_net_buy_ratio_1w", "dealer_net_buy_ratio_4w",
         "total_inst_net_buy_value_1w", "total_inst_net_buy_value_4w",
         "total_inst_net_buy_ratio_1w", "total_inst_net_buy_ratio_4w",
+        "foreign_net_buy_ntd_value_4w", "trust_net_buy_ntd_value_4w",
+        "dealer_net_buy_ntd_value_4w", "total_inst_net_buy_ntd_value_4w",
     ]
     merged = merged[keep_cols]
     assert_no_lookahead_panel(merged)

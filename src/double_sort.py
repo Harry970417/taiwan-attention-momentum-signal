@@ -7,6 +7,7 @@ return in each of the 9 cells.
 """
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 import matplotlib
@@ -52,8 +53,15 @@ def main():
 
     sub = panel.dropna(subset=["mom_bucket", "att_bucket"])
     horizons = ["future_1w_excess_return", "future_2w_excess_return", "future_4w_excess_return"]
-    table = sub.groupby(["mom_bucket", "att_bucket"], observed=True)[horizons].agg(["mean", "count"])
+    # DESCRIPTIVE ONLY: cell N differs across the 3x3 grid (unequal terciles from
+    # ties/missing data), so a single high cell is not evidence of an interaction
+    # effect -- report mean, N, and SE per cell so that is visible, not implied.
+    table = sub.groupby(["mom_bucket", "att_bucket"], observed=True)[horizons].agg(["mean", "std", "count"])
+    for h in horizons:
+        table[(h, "se")] = table[(h, "std")] / np.sqrt(table[(h, "count")])
+    table = table.reindex(columns=pd.MultiIndex.from_product([horizons, ["mean", "std", "count", "se"]]))
     table.to_csv(TABLES_DIR / "v03_double_sort_past4w_attention_asof_safe.csv", encoding="utf-8-sig")
+    print("DESCRIPTIVE ONLY -- not a formal interaction test; see triple_sort/regression Model E for that.")
     print(table.to_string())
 
     for horizon, fname in [("future_1w_excess_return", "v03_double_sort_heatmap_1w_asof_safe.png"),

@@ -57,6 +57,13 @@ def subperiod_stability(panel):
 
 
 def rolling_window(panel, horizon="future_4w_excess_return", window_weeks=52):
+    """Rolling stability of the Model1 (attention-only, no momentum control)
+    univariate Fama-MacBeth attention_z coefficient. Uses the same
+    Newey-West HAC standard error as the headline M1-M5 results (not the
+    naive std/sqrt(n) formula) so this chart's t-stat is on the same footing
+    as everything else in the paper."""
+    from quant_formulas.factor_stats import newey_west_se, t_stat_and_pvalue
+
     coefs, _ = fm_weekly_coefs(panel, horizon, [], use_industry_fe=False)
     coefs = coefs.sort_values("week").reset_index(drop=True)
     rows = []
@@ -65,8 +72,9 @@ def rolling_window(panel, horizon="future_4w_excess_return", window_weeks=52):
         c = win["coef"].dropna()
         if len(c) < 10:
             continue
-        mean, std, n = c.mean(), c.std(), len(c)
-        t = mean / (std / np.sqrt(n)) if std else np.nan
+        mean, n = c.mean(), len(c)
+        se = newey_west_se(c)
+        t, _ = t_stat_and_pvalue(mean, se, df=n - 1) if se > 0 else (np.nan, np.nan)
         rows.append({"window_end_week": win["week"].iloc[-1], "coef": mean, "t_stat": t})
     return pd.DataFrame(rows)
 
@@ -121,8 +129,13 @@ def main():
     ax2.axhline(-1.96, color="#d73027", linestyle=":", linewidth=1)
     ax.set_xlabel("滾動窗口結束週")
     ax.set_ylabel("注意力係數（52週滾動）", color="#2166ac")
-    ax2.set_ylabel("t統計量", color="#d73027")
-    ax.set_title("TAS：注意力係數52週滾動穩定性（4週預測期間）")
+    ax2.set_ylabel("t統計量（Newey-West HAC）", color="#d73027")
+    ax.set_title("TAS：Model1（純注意力，未控制動能）attention_z 係數 52 週滾動穩定性")
+    fig.text(0.5, 0.01,
+             "預測期間：future_4w_excess_return｜注意力測量：attention_z（個股自身時間序列z-score）｜"
+             "估計方法：週別橫斷面OLS＋Newey-West HAC標準誤（與M1主結果同一套估計法）",
+             ha="center", fontsize=8, color="#555555")
+    fig.subplots_adjust(bottom=0.16)
     fig.tight_layout()
     fig.savefig(FIGS / "robustness_rolling_window_4w.png", dpi=300)
     fig.savefig(Path(r"C:\Users\user\Desktop\推甄資料最新版\06_圖表與視覺素材") / "tas_rolling_window_stability.png", dpi=300)

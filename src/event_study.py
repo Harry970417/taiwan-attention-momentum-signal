@@ -12,14 +12,27 @@ over the [-4, +8] week window from raw daily close prices with explicit
 return_start and return_end dates per offset. Post-signal CAR starts from
 offset +1 so the delayed pre-signal week is not treated as forward evidence.
 
-Significance: ordinary one-sample t-test on the final-window CAR across
-events, plus a bootstrap (2000 resamples, resampling events with
-replacement) 95% CI on mean CAR. Note: because events cluster in calendar
-time (many stocks can spike in the same week), events are not independent
-draws -- the ordinary t-test likely overstates significance. This is
-flagged explicitly rather than silently trusting the t-test; a
-clustering-robust or calendar-time-portfolio approach would be the correct
-next step if these results are to be used for anything beyond screening.
+Significance: two statistics are reported for each event definition:
+
+  1. t_stat_naive: an ordinary one-sample t-test on the final-window CAR
+     across events, plus a bootstrap (2000 resamples, resampling events
+     with replacement) 95% CI on mean CAR. Kept for transparency, but
+     events cluster heavily in calendar time (many stocks spike the same
+     week on common market-wide news) and forward-return windows overlap
+     across nearby signal weeks -- so per-event draws are not independent
+     and this naive t-test overstates significance.
+
+  2. t_stat_date_clustered_hac (primary/authoritative statistic): events
+     sharing the same signal week are first collapsed into one weekly
+     portfolio observation (mean CAR across that week's events), which
+     removes the same-week cross-sectional correlation driving calendar
+     clustering. A Newey-West HAC t-test (quant_formulas.factor_stats,
+     same estimator used for every Fama-MacBeth model M1-M5 and the IC
+     summaries) is then run on that weekly portfolio series, which also
+     absorbs the serial correlation induced by overlapping forward-return
+     windows across adjacent event weeks. This keeps one consistent
+     inference method across the whole study instead of mixing a plain
+     t-test here with HAC everywhere else.
 """
 from pathlib import Path
 
@@ -232,6 +245,35 @@ def summarize_caar(event_window: pd.DataFrame):
     return by_window, final_car
 
 
+def date_clustered_hac(final_car: pd.Series, events: pd.DataFrame):
+    """Collapse per-event final-window CAR into one mean-CAR observation per
+    calendar signal week (events dataframe must carry an event_id column
+    aligned to final_car's index and a `week` column), then run a
+    Newey-West HAC t-test on that weekly portfolio series. See module
+    docstring for the rationale."""
+    from quant_formulas.factor_stats import newey_west_se, t_stat_and_pvalue
+
+    week_map = events.reset_index(drop=True)["week"]
+    week_map.index.name = "event_id"
+    df = pd.DataFrame({"final_car": final_car}).join(week_map, how="inner")
+    weekly = df.groupby("week")["final_car"].mean()
+    n_weeks = len(weekly)
+    if n_weeks < 2:
+        return {
+            "CAR_mean_date_clustered": weekly.mean() if n_weeks else None,
+            "t_stat_date_clustered_hac": None, "p_value_date_clustered_hac": None,
+            "n_calendar_weeks": n_weeks,
+        }
+    mean = weekly.mean()
+    se = newey_west_se(weekly)
+    t_stat, p_value = t_stat_and_pvalue(mean, se, df=n_weeks - 1) if se > 0 else (None, None)
+    return {
+        "CAR_mean_date_clustered": mean,
+        "t_stat_date_clustered_hac": t_stat, "p_value_date_clustered_hac": p_value,
+        "n_calendar_weeks": n_weeks,
+    }
+
+
 def bootstrap_ci(values: pd.Series, n_boot=N_BOOTSTRAP, seed=RNG_SEED):
     if len(values) < 2:
         return None, None
@@ -288,10 +330,11 @@ def main():
         all_by_window.append(by_window)
 
         if len(final_car) > 1:
-            t_stat, p_value = stats.ttest_1samp(final_car, 0)
+            t_stat_naive, p_value_naive = stats.ttest_1samp(final_car, 0)
             ci_low, ci_high = bootstrap_ci(final_car)
         else:
-            t_stat = p_value = ci_low = ci_high = None
+            t_stat_naive = p_value_naive = ci_low = ci_high = None
+        clustered = date_clustered_hac(final_car, filtered)
 
         summary_rows.append({
             "event_definition": name,
@@ -303,17 +346,25 @@ def main():
             "CAR_definition": "sum of weekly excess returns from offset +1 through final_window_offset",
             "CAR_mean_at_final_window": final_car.mean() if len(final_car) else None,
             "CAR_std": final_car.std() if len(final_car) else None,
-            "t_stat": t_stat, "p_value": p_value,
+            "t_stat_naive": t_stat_naive, "p_value_naive": p_value_naive,
             "bootstrap_ci_low": ci_low, "bootstrap_ci_high": ci_high,
             "n_events_used_in_test": len(final_car),
+            **clustered,
+            "t_stat": clustered.get("t_stat_date_clustered_hac"),
+            "p_value": clustered.get("p_value_date_clustered_hac"),
         })
 
         if not by_window.empty and name in fig_map:
             mean_final = final_car.mean() if len(final_car) else 0
             direction = "momentum" if mean_final > 0 else "reversal" if mean_final < 0 else "flat"
             plot_caar(by_window, f"CAAR - {name} (n={n_events} events, {direction})", FIGURES_DIR / fig_map[name])
+            cl_t = clustered.get("t_stat_date_clustered_hac")
+            cl_p = clustered.get("p_value_date_clustered_hac")
+            cl_str = f"t={cl_t:.3f} p={cl_p:.4f}" if cl_t is not None else "insufficient calendar weeks"
             print(f"{name}: {n_raw} raw -> {n_events} after filter, {n_stocks} stocks, "
-                  f"CAR@+{WINDOW_POST}w mean={final_car.mean():.4f} t={t_stat:.3f} p={p_value:.4f}" if len(final_car) > 1 else f"{name}: insufficient events for test")
+                  f"{clustered.get('n_calendar_weeks')} calendar weeks, "
+                  f"CAR@+{WINDOW_POST}w naive_mean={final_car.mean():.4f} naive_t={t_stat_naive:.3f} | "
+                  f"date-clustered HAC {cl_str}" if len(final_car) > 1 else f"{name}: insufficient events for test")
 
     pd.DataFrame(summary_rows).to_csv(TABLES_DIR / "caar_event_summary_asof_safe.csv", index=False, encoding="utf-8-sig")
     if all_by_window:

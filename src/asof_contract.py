@@ -130,6 +130,20 @@ def trailing_window_return(price: pd.Series, end, n_weeks: int) -> float | None:
     return window_return(price, start_date, end_date)
 
 
+def skip_window_return(price: pd.Series, end, total_weeks: int, skip_weeks: int) -> float | None:
+    """Trailing return over [end - total_weeks, end - skip_weeks], e.g.
+    total_weeks=52, skip_weeks=4 for a 12-1 month momentum proxy that skips
+    the most recent ~month to avoid short-term reversal contamination."""
+    idx = pd.DatetimeIndex(price.index)
+    window_end = last_at_or_before(idx, normalize_date(end) - pd.Timedelta(weeks=skip_weeks))
+    if window_end is None:
+        return None
+    window_start = last_at_or_before(idx, normalize_date(end) - pd.Timedelta(weeks=total_weeks))
+    if window_start is None:
+        return None
+    return window_return(price, window_start, window_end)
+
+
 def forward_window(price: pd.Series, return_start, n_weeks: int) -> tuple[pd.Timestamp | None, float | None]:
     idx = pd.DatetimeIndex(price.index)
     start_date = first_at_or_after(idx, return_start)

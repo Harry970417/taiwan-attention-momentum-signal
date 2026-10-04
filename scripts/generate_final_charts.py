@@ -101,12 +101,16 @@ fig.tight_layout(); fig.savefig(f"{OUT}/tas_legacy_vs_corrected_tstat.png", dpi=
 
 # 4. Double-sort heatmap (4w)
 # ponytail: source CSV has a 3-row multi-index header (metric name row,
-# mean/count row, mom_bucket/att_bucket label row) that pd.read_csv's default
-# single-header read mangles into "Unnamed: 0"-style columns, so mom_bucket/
-# att_bucket never matched and this chart silently never wrote its PNG.
+# mean/std/count/se row, mom_bucket/att_bucket label row) that pd.read_csv's
+# default single-header read mangles into "Unnamed: 0"-style columns, so
+# mom_bucket/att_bucket never matched and this chart silently never wrote its
+# PNG. 2026-09-13: double_sort.py now reports mean/std/count/se per horizon
+# (was mean/count only), so this hardcoded column layout grew from 8 to 14.
 ds = pd.read_csv(f"{ROOT}/v03_double_sort_past4w_attention_asof_safe.csv", header=None, skiprows=3)
-ds.columns = ["mom_bucket", "att_bucket", "f1w_mean", "f1w_count", "f2w_mean", "f2w_count",
-              "future_4w_excess_return_mean", "f4w_count"]
+ds.columns = ["mom_bucket", "att_bucket",
+              "f1w_mean", "f1w_std", "f1w_count", "f1w_se",
+              "f2w_mean", "f2w_std", "f2w_count", "f2w_se",
+              "future_4w_excess_return_mean", "f4w_std", "f4w_count", "f4w_se"]
 pivot = ds.pivot(index="mom_bucket", columns="att_bucket", values="future_4w_excess_return_mean")
 if pivot is not None:
     order_mom = [m for m in ["loser", "neutral", "winner"] if m in pivot.index]
@@ -125,17 +129,20 @@ if pivot is not None:
 
 # 5. Event study CAAR bar
 caar = pd.read_csv(f"{ROOT}/caar_event_summary_asof_safe.csv")
+caar_fdr = fdr[fdr["family"] == "event_study_caar"][["test", "significant_fdr_010"]]
+caar = caar.merge(caar_fdr, left_on="event_definition", right_on="test", how="left")
 fig, ax = plt.subplots(figsize=(7, 5))
 bars = ax.bar(caar["event_definition"], caar["CAR_mean_at_final_window"] * 100, color="#2980b9")
-for b, p in zip(bars, caar["p_value"]):
-    ax.text(b.get_x() + b.get_width()/2, b.get_height() + 0.1, f"p={p:.4f}", ha="center", fontsize=9)
+for b, p, sig in zip(bars, caar["p_value_date_clustered_hac"], caar["significant_fdr_010"]):
+    ax.text(b.get_x() + b.get_width()/2, b.get_height() + 0.1,
+             f"p={p:.4f}{'（FDR顯著）' if sig else '（FDR不顯著）'}", ha="center", fontsize=9)
 ax.set_ylabel("CAR 均值 @+8週 (%)")
-ax.set_title("TAS：事件研究法累積異常報酬（修正後，皆FDR顯著）")
+ax.set_title("TAS：事件研究法累積異常報酬\n(p值為日曆週組合＋Newey-West HAC，僅attention_ratio通過30組聯合FDR校正)")
 fig.tight_layout(); fig.savefig(f"{OUT}/tas_event_study_caar.png", dpi=300); plt.close(fig)
 
 # 6. Research timeline
 fig, ax = plt.subplots(figsize=(11, 3.2))
-stages = ["原始模型\n顯著支持\n「放大器」假說", "稽核發現\nGoogle Trends\nlook-ahead bias", "主動撤回\n原結論", "建立as-of-safe\n資料管線", "50檔237週\n完整重新驗證", "FDR校正：\n事件研究+M1顯著\n交互作用不顯著"]
+stages = ["原始模型\n顯著支持\n「放大器」假說", "稽核發現\nGoogle Trends\nlook-ahead bias", "主動撤回\n原結論", "建立as-of-safe\n資料管線", "50檔237週\n完整重新驗證", "日曆週聚類+FDR：\n僅event study一項\n通過30組聯合校正"]
 xs = np.arange(len(stages))
 ax.plot(xs, [0]*len(stages), color="#34495e", linewidth=2, zorder=1)
 ax.scatter(xs, [0]*len(stages), s=140, color="#2980b9", zorder=2)

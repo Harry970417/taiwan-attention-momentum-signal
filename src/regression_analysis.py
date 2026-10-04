@@ -109,6 +109,18 @@ def main():
         "D_plus_volume_volatility": ["attention_z", "past_4w_return", "past_12w_return",
                                       "total_inst_net_buy_ratio_4w", "volume_ratio_4w", "volatility_12w"],
     }
+
+    # Institutional-flow scaling sensitivity: does the attention_z coefficient
+    # depend on which units the institutional-flow control is measured in?
+    # B_plus_total_inst_flow above already uses the volume-scaled ratio;
+    # compare against raw share counts and an approximate NTD-value flow
+    # (market-cap-scaled flow is not implemented -- no reliable market cap
+    # data available, see institutional_flow.py docstring).
+    flow_scaling_models = {
+        "flow_raw_shares": ["attention_z", "past_4w_return", "past_12w_return", "total_inst_net_buy_value_4w"],
+        "flow_ntd_value_approx": ["attention_z", "past_4w_return", "past_12w_return", "total_inst_net_buy_ntd_value_4w"],
+        "flow_volume_scaled_ratio": ["attention_z", "past_4w_return", "past_12w_return", "total_inst_net_buy_ratio_4w"],
+    }
     model_e_terms = ["attention_z", "past_4w_return", "past_12w_return", "total_inst_net_buy_ratio_4w",
                       ("attention_z", "past_4w_return"), ("attention_z", "total_inst_net_buy_ratio_4w")]
 
@@ -125,6 +137,21 @@ def main():
                   f"t={agg['t_stat']}, p={agg['p_value']}, n_weeks={agg['n_weeks']}")
 
     pd.DataFrame(summary_rows).to_csv(TABLES_DIR / "v04_regression_with_chips_summary_asof_safe.csv", index=False, encoding="utf-8-sig")
+
+    scaling_rows = []
+    for model_name, terms in flow_scaling_models.items():
+        for horizon in HORIZONS:
+            coefs, skipped = fm_weekly(panel, horizon, terms)
+            agg = fm_aggregate(coefs, "attention_z")
+            agg.update({"model": model_name, "horizon": horizon,
+                        "avg_r2": coefs["r2"].mean() if not coefs.empty else None,
+                        "n_weeks_skipped": len(skipped)})
+            scaling_rows.append(agg)
+            print(f"[flow scaling] {model_name} | {horizon}: attention_z coef={agg['coefficient']}, "
+                  f"t={agg['t_stat']}, p={agg['p_value']}")
+    pd.DataFrame(scaling_rows).to_csv(
+        TABLES_DIR / "v04_institutional_flow_scaling_sensitivity_asof_safe.csv", index=False, encoding="utf-8-sig"
+    )
 
     # Model E: interaction terms
     interaction_rows = []

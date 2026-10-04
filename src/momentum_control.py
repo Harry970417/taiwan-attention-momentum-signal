@@ -101,6 +101,36 @@ def fm_aggregate(coefs: pd.DataFrame, model_name: str, horizon: str):
     }
 
 
+CANONICAL_MOMENTUM_CONTROLS = {
+    "1_month_return": ["past_4w_return"],
+    "3_month_momentum": ["past_12w_return"],
+    "6_month_momentum": ["past_26w_return"],
+    "12_1_month_momentum": ["past_52w_skip4w_return"],
+    "short_term_reversal_1w": ["past_1w_return"],
+}
+
+
+def canonical_momentum_robustness(panel: pd.DataFrame) -> pd.DataFrame:
+    """Pre-defined (not tuned post hoc) robustness table: does the attention_z
+    coefficient survive controlling for each of five separate, standard
+    momentum/reversal proxies one at a time? M1-M4 above only ever control
+    for a single short-term proxy (past_4w_return + past_12w_return); this
+    table checks the other canonical windows the portfolio previously implied
+    were controlled for but weren't."""
+    rows = []
+    for horizon in HORIZONS:
+        coefs, _ = fm_weekly_coefs(panel, horizon, [], use_industry_fe=False)
+        agg = fm_aggregate(coefs, "baseline_no_momentum_control", horizon)
+        agg["momentum_control"] = "none"
+        rows.append(agg)
+        for label, controls in CANONICAL_MOMENTUM_CONTROLS.items():
+            coefs, _ = fm_weekly_coefs(panel, horizon, controls, use_industry_fe=False)
+            agg = fm_aggregate(coefs, f"attention_plus_{label}", horizon)
+            agg["momentum_control"] = label
+            rows.append(agg)
+    return pd.DataFrame(rows)
+
+
 def pooled_two_way_fe(panel: pd.DataFrame, horizon: str, continuous: list[str]):
     """Model 5 fallback: pooled OLS with stock + week fixed effects, SE clustered by week."""
     cols = ["attention_z"] + continuous
@@ -227,6 +257,10 @@ def main():
 
     pd.DataFrame(summary_rows).to_csv(TABLES_DIR / "v03_fama_macbeth_summary_asof_safe.csv", index=False, encoding="utf-8-sig")
     pd.concat(by_horizon_rows, ignore_index=True).to_csv(TABLES_DIR / "v03_regression_by_horizon_asof_safe.csv", index=False, encoding="utf-8-sig")
+
+    canonical_momentum_robustness(panel).to_csv(
+        TABLES_DIR / "canonical_momentum_robustness_asof_safe.csv", index=False, encoding="utf-8-sig"
+    )
 
     residual_panel = build_residual_panel(panel)
     residual_panel.to_csv(RESIDUAL_PANEL_PATH, index=False, encoding="utf-8-sig")
